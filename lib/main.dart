@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'PetOwnerPage.dart';
-import 'PetPage.dart';
-import 'VaccinePage.dart';
-import 'VeterinarianPage.dart';
+import 'petowner/PetOwnerPage.dart';
+import 'pet/PetPage.dart';
+import 'vaccine/VaccinePage.dart';
+import 'veterinarian/VeterinarianPage.dart';
 
 void main() {
   runApp(const MyApp());

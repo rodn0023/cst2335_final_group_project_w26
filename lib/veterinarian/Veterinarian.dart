@@ -1,7 +1,7 @@
 import 'package:floor/floor.dart';
 
 @entity
-class VeterinarianListItem {
+class Veterinarian {
   @primaryKey
   final int id;
 
@@ -13,7 +13,7 @@ class VeterinarianListItem {
 
   final String university;
 
-  VeterinarianListItem(this.id, this.name, this.birthday, this.address, this.university) {
+  Veterinarian(this.id, this.name, this.birthday, this.address, this.university) {
     if(id >= ID) {
       ID = id + 1;
     }

@@ -13,4 +13,7 @@ abstract class VeterinarianDAO {
   @insert
   Future<void> insertVeterinarian(Veterinarian veterinarian);
 
+  @update
+  Future<void> updateVeterinarian(Veterinarian veterinarian);
+
 }

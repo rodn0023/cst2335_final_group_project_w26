@@ -126,6 +126,17 @@ class _$VeterinarianDAO extends VeterinarianDAO {
                   'address': item.address,
                   'university': item.university
                 }),
+        _veterinarianUpdateAdapter = UpdateAdapter(
+            database,
+            'Veterinarian',
+            ['id'],
+            (Veterinarian item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'birthday': item.birthday,
+                  'address': item.address,
+                  'university': item.university
+                }),
         _veterinarianDeletionAdapter = DeletionAdapter(
             database,
             'Veterinarian',
@@ -146,6 +157,8 @@ class _$VeterinarianDAO extends VeterinarianDAO {
 
   final InsertionAdapter<Veterinarian> _veterinarianInsertionAdapter;
 
+  final UpdateAdapter<Veterinarian> _veterinarianUpdateAdapter;
+
   final DeletionAdapter<Veterinarian> _veterinarianDeletionAdapter;
 
   @override
@@ -162,6 +175,12 @@ class _$VeterinarianDAO extends VeterinarianDAO {
   @override
   Future<void> insertVeterinarian(Veterinarian veterinarian) async {
     await _veterinarianInsertionAdapter.insert(
+        veterinarian, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateVeterinarian(Veterinarian veterinarian) async {
+    await _veterinarianUpdateAdapter.update(
         veterinarian, OnConflictStrategy.abort);
   }
 

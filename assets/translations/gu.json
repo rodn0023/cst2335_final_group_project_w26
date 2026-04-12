@@ -1,0 +1,42 @@
+{
+  "pet_pageTitle": "પ્રાણી પૃષ્ઠ",
+  "pet_addButton": "ઉમેરો",
+  "pet_updateButton": "અપડેટ કરો",
+  "pet_deleteButton": "કાઢી નાખો",
+  "pet_closeButton": "બંધ કરો",
+  "pet_helpButton": "મદદ",
+  "pet_yesButton": "હા",
+  "pet_noButton": "ના",
+  "pet_cancelButton": "રદ કરો",
+
+  "pet_nameHint": "નામ",
+  "pet_birthdayHint": "જન્મ તારીખ (YYYY-MM-DD)",
+  "pet_speciesHint": "પ્રજાતિ (દા.ત. બિલાડી, કૂતરો, પક્ષી)",
+  "pet_colourHint": "રંગ",
+  "pet_ownerIDHint": "માલિક ID",
+
+  "pet_pleaseEnter": "કૃપા કરીને નવું પ્રાણી દાખલ કરો.",
+  "pet_emptyList": "સૂચિમાં કોઈ પ્રાણી નથી.",
+  "pet_selectPrompt": "કૃપા કરીને સૂચિમાંથી પ્રાણી પસંદ કરો.",
+
+  "pet_fillFields": "સબમિટ કરતા પહેલાં કૃપા કરીને બધા ક્ષેત્રો ભરો.",
+  "pet_fillFieldsUpdate": "અપડેટ કરતા પહેલાં કૃપા કરીને બધા ક્ષેત્રો ભરો.",
+
+  "pet_snackAdded": "ઉમેરવામાં આવ્યું!",
+  "pet_snackUpdated": "પ્રાણી અપડેટ કરવામાં આવ્યું!",
+  "pet_snackDeleted": "પ્રાણી કાઢી નાખવામાં આવ્યું.",
+
+  "pet_deleteTitle": "આ પ્રાણીને કાઢી નાખવું છે?",
+  "pet_deleteContent": "શું તમે ખરેખર આ પ્રાણીને કાઢી નાખવા માંગો છો?",
+
+  "pet_copyTitle": "નવું પ્રાણી",
+  "pet_copyContent": "શું તમે અગાઉના પ્રાણીની માહિતી કૉપિ કરવા માંગો છો?",
+
+  "pet_helpTitle": "પ્રાણી પૃષ્ઠ કેવી રીતે વાપરવું",
+  "pet_helpContent": "બધા ક્ષેત્રો ભરો: નામ, જન્મ તારીખ, પ્રજાતિ, રંગ અને માલિક ID.\nસાચવવા માટે ઉમેરો દબાવો.\nવિગતો જોવા અથવા ફેરફાર કરવા માટે પ્રાણી પર ટૅપ કરો.\nફેરફારો સાચવવા અપડેટ અથવા દૂર કરવા કાઢી નાખો વાપરો.\nઝડપી કાઢી નાખવા માટે લાંબો સ્પર્શ કરો.",
+
+  "pet_birthday": "જન્મ તારીખ",
+  "pet_species": "પ્રજાતિ",
+  "pet_colour": "રંગ",
+  "pet_ownerID": "માલિક ID"
+}

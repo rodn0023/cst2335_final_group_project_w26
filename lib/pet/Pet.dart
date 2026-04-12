@@ -1,13 +1,14 @@
 import 'package:floor/floor.dart';
 
 /// Represents a pet that is a patient of a veterinary clinic.
-/// This class is a Floor database entity.
+/// This is a Floor database entity.
 @entity
 class Pet {
-  /// Static auto-incrementing ID, must always be greater than any ID in the database.
+
+  /// Static ID counter, must always be greater than the highest ID in the database.
   static int ID = 1;
 
-  /// Creates a [Pet] with the given [id], [name], [birthday], [species], [colour], and [ownerID].
+  /// Creates a [Pet] with the given fields.
   /// Automatically keeps [ID] ahead of the highest existing ID.
   Pet(this.id, this.name, this.birthday, this.species, this.colour, this.ownerID) {
     if (this.id >= ID) {
@@ -22,7 +23,7 @@ class Pet {
   /// The name of the pet.
   String name;
 
-  /// The birthday of the pet (stored as a String, e.g. "2020-03-15").
+  /// The birthday of the pet (e.g. 2020-03-15).
   String birthday;
 
   /// The species of the pet (e.g. cat, dog, bird).

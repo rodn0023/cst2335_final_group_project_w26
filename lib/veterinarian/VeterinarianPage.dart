@@ -3,6 +3,8 @@ import 'Veterinarian.dart';
 import 'VeterinarianDAO.dart';
 import 'database.dart';
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
+import 'package:cst2335_final_group_project_w26/main.dart';
+import '../AppLocalizations.dart';
 
 class VeterinarianPage extends StatefulWidget {
   const VeterinarianPage({super.key});
@@ -41,6 +43,10 @@ class VeterinarianPageState extends State<VeterinarianPage> {
   @override
   void initState() {
     super.initState();
+
+    Future.delayed(Duration.zero, () {
+      MyApp.setLocale(context, Locale("en"));
+    });
 
     loadDatabase();
 
@@ -81,19 +87,19 @@ class VeterinarianPageState extends State<VeterinarianPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Reuse Fields"),
+        title: Text(AppLocalizations.of(context)!.translate('VetAddAlertHead')!),
         content: Text(
-          "Do you wish to reuse the fields from the previous entry?",
+          AppLocalizations.of(context)!.translate('VetAddAlertDesc')!,
         ),
         actions: [
           ElevatedButton(
-            child: Text("NO"),
+            child: Text(AppLocalizations.of(context)!.translate('VetNo')!),
             onPressed: () {
               Navigator.of(context).pop();
             },
           ),
           ElevatedButton(
-            child: Text("YES"),
+            child: Text(AppLocalizations.of(context)!.translate('VetYes')!),
             onPressed: () async {
               final savedName = await prefs.getString("name");
               final savedBirthday = await prefs.getString("birthday");
@@ -119,16 +125,13 @@ class VeterinarianPageState extends State<VeterinarianPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("How To Use the Form"),
+        title: Text(AppLocalizations.of(context)!.translate('VetHelpAlertHead')!),
         content: Text(
-          "Please fill out all the form fields by clicking and typing in each box while entering accurate details for a new Veterinarian.\n"
-          "Once you fill out all the fields, click the Add button to submit.\n"
-          "If you want to keep the information in the form, click YES in the alert.\n"
-          "If not, click NO and it will wipe the fields.",
+            AppLocalizations.of(context)!.translate('VetHelpAlertDesc')!,
         ),
         actions: [
           ElevatedButton(
-            child: Text("Close"),
+            child: Text(AppLocalizations.of(context)!.translate('VetClose')!),
             onPressed: () async {
               setState(() {
                 Navigator.of(context).pop();
@@ -176,15 +179,15 @@ class VeterinarianPageState extends State<VeterinarianPage> {
       padding: EdgeInsets.all(10),
       child: Column(
         children: [
-          Text("Please enter a new Veterinarian."),
+          Text(AppLocalizations.of(context)!.translate('VetFormMessage')!),
           (width > height && width > 720)
               ? Row(
                   children: [
                     Expanded(
                       child: TextField(
                         controller: nameController,
-                        decoration: const InputDecoration(
-                          hintText: "Name",
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context)!.translate('VetName')!,
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -192,8 +195,8 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                     Expanded(
                       child: TextField(
                         controller: birthdayController,
-                        decoration: const InputDecoration(
-                          hintText: "Birthday",
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context)!.translate('VetBirthday')!,
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -201,8 +204,8 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                     Expanded(
                       child: TextField(
                         controller: addressController,
-                        decoration: const InputDecoration(
-                          hintText: "Address",
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context)!.translate('VetAddress')!,
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -210,8 +213,8 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                     Expanded(
                       child: TextField(
                         controller: universityController,
-                        decoration: const InputDecoration(
-                          hintText: "University",
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context)!.translate('VetUniversity')!,
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -225,9 +228,9 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                                 birthdayController.text.isEmpty ||
                                 addressController.text.isEmpty ||
                                 universityController.text.isEmpty) {
-                              const snackBar = SnackBar(
+                              var snackBar = SnackBar(
                                 content: Text(
-                                  'Fill out all the fields before submission.',
+                                    AppLocalizations.of(context)!.translate('VetFormFail')!
                                 ),
                               );
                               ScaffoldMessenger.of(
@@ -260,8 +263,8 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                               addAlert();
                             }
                           },
-                          child: const Text(
-                            "Add",
+                          child: Text(
+                            AppLocalizations.of(context)!.translate('VetAdd')!,
                             style: TextStyle(color: Color(0xFF06402B)),
                           ),
                         ),
@@ -293,8 +296,8 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                                   selectedItem = null;
                                 });
                               },
-                              child: const Text(
-                                "Update",
+                              child: Text(
+                                AppLocalizations.of(context)!.translate('VetUpdate')!,
                                 style: TextStyle(color: Color(0xFF06402B)),
                               ),
                             ),
@@ -305,7 +308,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                                   backgroundColor: Colors.red,
                                 ),
                                 child: Text(
-                                  "Delete",
+                                  AppLocalizations.of(context)!.translate('VetDelete')!,
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () async {
@@ -330,29 +333,29 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(
-                        hintText: "Name",
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.translate('VetName')!,
                         border: OutlineInputBorder(),
                       ),
                     ),
                     TextField(
                       controller: birthdayController,
-                      decoration: const InputDecoration(
-                        hintText: "Birthday",
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.translate('VetBirthday')!,
                         border: OutlineInputBorder(),
                       ),
                     ),
                     TextField(
                       controller: addressController,
-                      decoration: const InputDecoration(
-                        hintText: "Address",
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.translate('VetAddress')!,
                         border: OutlineInputBorder(),
                       ),
                     ),
                     TextField(
                       controller: universityController,
-                      decoration: const InputDecoration(
-                        hintText: "University",
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.translate('VetUniversity')!,
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -365,9 +368,9 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                                 birthdayController.text.isEmpty ||
                                 addressController.text.isEmpty ||
                                 universityController.text.isEmpty) {
-                              const snackBar = SnackBar(
+                              var snackBar = SnackBar(
                                 content: Text(
-                                  'Fill out all the fields before submission.',
+                                  AppLocalizations.of(context)!.translate('VetFormFail')!,
                                 ),
                               );
                               ScaffoldMessenger.of(
@@ -434,8 +437,8 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                                   selectedItem = null;
                                 });
                               },
-                              child: const Text(
-                                "Update",
+                              child: Text(
+                                AppLocalizations.of(context)!.translate('VetUpdate')!,
                                 style: TextStyle(color: Color(0xFF06402B)),
                               ),
                             ),
@@ -446,7 +449,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                                   backgroundColor: Colors.red,
                                 ),
                                 child: Text(
-                                  "Delete",
+                                  AppLocalizations.of(context)!.translate('VetDelete')!,
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () async {
@@ -485,15 +488,15 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                         ),
                       ),
                       Text(
-                        "Birthdate: ${veterinarianList[rowNum].birthday}",
+                        "${AppLocalizations.of(context)!.translate('VetDetailsBirthdate')!} ${veterinarianList[rowNum].birthday}",
                         style: TextStyle(fontSize: 20.0),
                       ),
                       Text(
-                        "Address: ${veterinarianList[rowNum].address}",
+                        "${AppLocalizations.of(context)!.translate('VetAddress')!}: ${veterinarianList[rowNum].address}",
                         style: TextStyle(fontSize: 20.0),
                       ),
                       Text(
-                        "University: ${veterinarianList[rowNum].university}",
+                        "${AppLocalizations.of(context)!.translate('VetUniversity')!}: ${veterinarianList[rowNum].university}",
                         style: TextStyle(fontSize: 20.0),
                       ),
                       Text(""),
@@ -527,23 +530,23 @@ class VeterinarianPageState extends State<VeterinarianPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "Veterinarian Name: ${selectedItem!.name}",
+                "${AppLocalizations.of(context)!.translate('VetDetailsName')!}${selectedItem!.name}",
                 style: TextStyle(fontSize: 20.0, color: Colors.white),
               ),
               Text(
-                "Birthdate: ${selectedItem!.birthday}",
+                "${AppLocalizations.of(context)!.translate('VetDetailsBirthdate')!}${selectedItem!.birthday}",
                 style: TextStyle(fontSize: 20.0, color: Colors.white),
               ),
               Text(
-                "Address: ${selectedItem!.address}",
+                "${AppLocalizations.of(context)!.translate('VetDetailsAddress')!}${selectedItem!.address}",
                 style: TextStyle(fontSize: 20.0, color: Colors.white),
               ),
               Text(
-                "University: ${selectedItem!.university}",
+                "${AppLocalizations.of(context)!.translate('VetDetailsUniversity')!}${selectedItem!.university}",
                 style: TextStyle(fontSize: 20.0, color: Colors.white),
               ),
               Text(
-                "Database ID: ${selectedItem!.id}",
+                "${AppLocalizations.of(context)!.translate('VetDetailsID')!}${selectedItem!.id}",
                 style: TextStyle(fontSize: 20.0, color: Colors.white),
               ),
 
@@ -558,7 +561,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                   });
                 },
                 child: Text(
-                  "Close",
+                  AppLocalizations.of(context)!.translate('VetClose')!,
                   style: TextStyle(color: Color(0xFF06402B)),
                 ),
               ),
@@ -569,7 +572,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
     } else {
       return Center(
         child: Text(
-          "Nothing Selected",
+          AppLocalizations.of(context)!.translate('VetSelection')!,
           style: TextStyle(
             fontSize: 21.0,
             color: Colors.white,
@@ -587,23 +590,23 @@ class VeterinarianPageState extends State<VeterinarianPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Veterinarian Name: ${selectedItem!.name}",
+              "${AppLocalizations.of(context)!.translate('VetDetailsName')!}${selectedItem!.name}",
               style: TextStyle(fontSize: 22.0, color: Colors.white),
             ),
             Text(
-              "Birthdate: ${selectedItem!.birthday}",
+              "${AppLocalizations.of(context)!.translate('VetDetailsBirthdate')!}${selectedItem!.birthday}",
               style: TextStyle(fontSize: 22.0, color: Colors.white),
             ),
             Text(
-              "Address: ${selectedItem!.address}",
+              "${AppLocalizations.of(context)!.translate('VetDetailsAddress')!}${selectedItem!.address}",
               style: TextStyle(fontSize: 22.0, color: Colors.white),
             ),
             Text(
-              "University: ${selectedItem!.university}",
+              "${AppLocalizations.of(context)!.translate('VetDetailsUniversity')!}${selectedItem!.university}",
               style: TextStyle(fontSize: 22.0, color: Colors.white),
             ),
             Text(
-              "Database ID: ${selectedItem!.id}",
+              "${AppLocalizations.of(context)!.translate('VetDetailsID')!}${selectedItem!.id}",
               style: TextStyle(fontSize: 22.0, color: Colors.white),
             ),
 
@@ -665,7 +668,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                     });
                   },
                   child: Text(
-                    "Update",
+                    AppLocalizations.of(context)!.translate('VetUpdate')!,
                     style: TextStyle(color: Color(0xFF06402B)),
                   ),
                 ),
@@ -680,7 +683,8 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                       selectedItem = null;
                     });
                   },
-                  child: Text("Delete", style: TextStyle(color: Colors.white)),
+                  child: Text(AppLocalizations.of(context)!.translate('VetDelete')!,
+                      style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -695,7 +699,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                   selectedItem = null;
                 });
               },
-              child: Text("Close", style: TextStyle(color: Color(0xFF06402B))),
+              child: Text(AppLocalizations.of(context)!.translate('VetClose')!, style: TextStyle(color: Color(0xFF06402B))),
             ),
           ],
         ),
@@ -703,7 +707,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
     } else {
       return Center(
         child: Text(
-          "Nothing Selected",
+          AppLocalizations.of(context)!.translate('VetSelection')!,
           style: TextStyle(
             fontSize: 21.0,
             color: Colors.white,
@@ -718,15 +722,35 @@ class VeterinarianPageState extends State<VeterinarianPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Veterinarian Page"),
+        title: Text(AppLocalizations.of(context)!.translate('VetPage')!),
         actions: [
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: OutlinedButton(
+              onPressed: () {
+                MyApp.setLocale(context, Locale("en", "CA"));
+              },
+              child: Text(AppLocalizations.of(context)!.translate('VetEnglish')!, style: TextStyle(color: Color(0xFF06402B))),
+            ),
+          ),
+
+          Padding(
+            padding: EdgeInsets.all(10),
+            child: OutlinedButton(
+              onPressed: () {
+                MyApp.setLocale(context, Locale("fr"));
+              },
+              child: Text(AppLocalizations.of(context)!.translate('VetFrench')!, style: TextStyle(color: Color(0xFF06402B))),
+            ),
+          ),
+
           Padding(
             padding: EdgeInsets.all(10),
             child: OutlinedButton(
               onPressed: () {
                 helpAlert();
               },
-              child: Text("Help", style: TextStyle(color: Color(0xFF06402B))),
+              child: Text(AppLocalizations.of(context)!.translate('VetHelp')!, style: TextStyle(color: Color(0xFF06402B))),
             ),
           ),
         ],

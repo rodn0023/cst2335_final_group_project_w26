@@ -24,5 +24,6 @@
   "VetHelpAlertHead" : "How To Use the Form",
   "VetHelpAlertDesc" : "Please fill out all the form fields by clicking and typing in each box while entering accurate details for a new Veterinarian. Once you fill out all the fields, click the Add button to submit. If you want to keep the information in the form, click YES in the alert. If not, click NO and it will wipe the fields.",
   "VetAddAlertHead" : "Reuse Fields",
-  "VetAddAlertDesc" : "Do you wish to reuse the fields from the previous entry?"
+  "VetAddAlertDesc" : "Do you wish to reuse the fields from the previous entry?",
+  "VetNoItems" : "There are no items in the list."
 }

@@ -24,5 +24,6 @@
   "VetHelpAlertHead" : "Comment Utiliser le Formulaire",
   "VetHelpAlertDesc" : "Veuillez remplir tous les champs du formulaire en cliquant et en saisissant les informations exactes concernant le nouveau vétérinaire. Une fois le formulaire rempli, cliquez sur le bouton « Ajouter » pour le soumettre. Si vous souhaitez conserver les informations, cliquez sur « Oui » dans l’alerte. Sinon, cliquez sur « Non » pour effacer les champs.",
   "VetAddAlertHead" : "Réutiliser les champs",
-  "VetAddAlertDesc" : "Souhaitez-vous réutiliser les champs de l'entrée précédente?"
+  "VetAddAlertDesc" : "Souhaitez-vous réutiliser les champs de l'entrée précédente?",
+  "VetNoItems" : "La liste est vide."
 }

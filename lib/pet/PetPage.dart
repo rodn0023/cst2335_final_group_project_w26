@@ -1,172 +1,346 @@
 import 'package:flutter/material.dart';
-import 'Pet.dart';
+import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 
-/// Pet page for Step 1.
-/// This version uses a local list only, following the Week 6 ListView lab style.
+import 'Pet.dart';
+import 'PetDAO.dart';
+import 'PetDatabase.dart';
+
+/// The main landing page for the Pet section.
+/// Shows a responsive master-detail layout with a list of pets
+/// and a detail / add-edit panel.
 class PetPage extends StatefulWidget {
+  /// Creates the [PetPage].
   const PetPage({super.key});
 
   @override
   State<PetPage> createState() => _PetPageState();
 }
 
+/// State for [PetPage].
 class _PetPageState extends State<PetPage> {
-  /// Controller for the pet name input.
-  late TextEditingController nameController;
 
-  /// Controller for the birthday input.
-  late TextEditingController birthdayController;
+  /// All pets loaded from the database.
+  List<Pet> petList = [];
 
-  /// Controller for the species input.
-  late TextEditingController speciesController;
+  /// The currently selected pet, or null if nothing is selected.
+  Pet? selectedPet;
 
-  /// Controller for the colour input.
-  late TextEditingController colourController;
+  /// Whether we are in "add new pet" mode.
+  bool isAdding = false;
 
-  /// Controller for the owner id input.
-  late TextEditingController ownerIdController;
+  /// The Floor DAO for pet operations.
+  late PetDAO petDAO;
 
-  /// Local list of pets for Step 1.
-  List<Pet> pets = [];
+  /// Controller for the pet name field.
+  late TextEditingController _nameController;
+
+  /// Controller for the birthday field.
+  late TextEditingController _birthdayController;
+
+  /// Controller for the species field.
+  late TextEditingController _speciesController;
+
+  /// Controller for the colour field.
+  late TextEditingController _colourController;
+
+  /// Controller for the owner ID field.
+  late TextEditingController _ownerIDController;
+
+  /// Encrypted shared preferences instance.
+  final EncryptedSharedPreferences _prefs = EncryptedSharedPreferences();
+
+  // ── Lifecycle ──────────────────────────────────────────────────────────────
 
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController();
-    birthdayController = TextEditingController();
-    speciesController = TextEditingController();
-    colourController = TextEditingController();
-    ownerIdController = TextEditingController();
+
+    _nameController     = TextEditingController();
+    _birthdayController = TextEditingController();
+    _speciesController  = TextEditingController();
+    _colourController   = TextEditingController();
+    _ownerIDController  = TextEditingController();
+
+    // Open the Floor database and load all existing pets
+    $FloorPetDatabase.databaseBuilder('PetFile.db').build().then((database) {
+      petDAO = database.petDAO;
+      petDAO.getAllPets().then((list) {
+        setState(() {
+          petList.addAll(list);
+        });
+      });
+    });
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    birthdayController.dispose();
-    speciesController.dispose();
-    colourController.dispose();
-    ownerIdController.dispose();
+    _nameController.dispose();
+    _birthdayController.dispose();
+    _speciesController.dispose();
+    _colourController.dispose();
+    _ownerIDController.dispose();
     super.dispose();
   }
 
-  /// Adds a pet to the local list if all fields are filled in.
-  void addPet() {
-    String name = nameController.text.trim();
-    String birthday = birthdayController.text.trim();
-    String species = speciesController.text.trim();
-    String colour = colourController.text.trim();
-    String ownerId = ownerIdController.text.trim();
+  // ── Shared Preferences helpers ─────────────────────────────────────────────
 
-    if (name.isEmpty ||
-        birthday.isEmpty ||
-        species.isEmpty ||
-        colour.isEmpty ||
-        ownerId.isEmpty) {
+  /// Saves the current form values to [EncryptedSharedPreferences]
+  /// so they can be restored the next time the user adds a pet.
+  void _saveToPrefs() {
+    _prefs.setString('pet_name',     _nameController.text);
+    _prefs.setString('pet_birthday', _birthdayController.text);
+    _prefs.setString('pet_species',  _speciesController.text);
+    _prefs.setString('pet_colour',   _colourController.text);
+    _prefs.setString('pet_ownerID',  _ownerIDController.text);
+  }
+
+  /// Loads the previously saved form values from [EncryptedSharedPreferences]
+  /// into the text controllers.
+  void _loadFromPrefs() {
+    _prefs.getString('pet_name').then((v)     { setState(() { _nameController.text     = v; }); });
+    _prefs.getString('pet_birthday').then((v) { setState(() { _birthdayController.text = v; }); });
+    _prefs.getString('pet_species').then((v)  { setState(() { _speciesController.text  = v; }); });
+    _prefs.getString('pet_colour').then((v)   { setState(() { _colourController.text   = v; }); });
+    _prefs.getString('pet_ownerID').then((v)  { setState(() { _ownerIDController.text  = v; }); });
+  }
+
+  /// Clears all form text controllers.
+  void _clearForm() {
+    _nameController.clear();
+    _birthdayController.clear();
+    _speciesController.clear();
+    _colourController.clear();
+    _ownerIDController.clear();
+  }
+
+  // ── Business logic ─────────────────────────────────────────────────────────
+
+  /// Validates all fields are filled, inserts a new [Pet] into the
+  /// database and list, shows a [SnackBar], and saves to prefs.
+  void _addPet() {
+    if (_nameController.text.isEmpty     ||
+        _birthdayController.text.isEmpty ||
+        _speciesController.text.isEmpty  ||
+        _colourController.text.isEmpty   ||
+        _ownerIDController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill in all pet fields'),
-        ),
+        const SnackBar(content: Text('Please fill in all fields before adding a pet.')),
       );
       return;
     }
 
-    setState(() {
-      pets.add(Pet(name, birthday, species, colour, ownerId));
+    final newPet = Pet(
+      Pet.ID++,
+      _nameController.text,
+      _birthdayController.text,
+      _speciesController.text,
+      _colourController.text,
+      int.tryParse(_ownerIDController.text) ?? 0,
+    );
 
-      nameController.clear();
-      birthdayController.clear();
-      speciesController.clear();
-      colourController.clear();
-      ownerIdController.clear();
+    petDAO.insertPet(newPet).then((_) {
+      setState(() {
+        petList.add(newPet);
+        isAdding    = false;
+        selectedPet = null;
+      });
+      _saveToPrefs();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${newPet.name} has been added!')),
+      );
+      _clearForm();
     });
   }
 
-  /// Shows a delete confirmation dialog for the selected pet.
-  void confirmDelete(int index) {
-    showDialog(
+  /// Updates the currently [selectedPet] in the database and list,
+  /// then shows a [SnackBar].
+  void _updatePet() {
+    if (selectedPet == null) return;
+
+    if (_nameController.text.isEmpty     ||
+        _birthdayController.text.isEmpty ||
+        _speciesController.text.isEmpty  ||
+        _colourController.text.isEmpty   ||
+        _ownerIDController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields before updating.')),
+      );
+      return;
+    }
+
+    selectedPet!.name     = _nameController.text;
+    selectedPet!.birthday = _birthdayController.text;
+    selectedPet!.species  = _speciesController.text;
+    selectedPet!.colour   = _colourController.text;
+    selectedPet!.ownerID  = int.tryParse(_ownerIDController.text) ?? 0;
+
+    petDAO.updatePet(selectedPet!).then((_) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${selectedPet!.name} has been updated!')),
+      );
+    });
+  }
+
+  /// Shows an [AlertDialog] asking the user to confirm deletion,
+  /// then deletes [selectedPet] from the database and list.
+  void _confirmDelete() {
+    showDialog<String>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Delete Pet'),
-          content: const Text('Do you want to delete this pet?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('No'),
-            ),
-            TextButton(
-              onPressed: () {
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Delete this pet?'),
+        content: Text('Are you sure you want to delete ${selectedPet!.name}?'),
+        actions: [
+          FilledButton(
+            child: const Text('Yes'),
+            onPressed: () {
+              petDAO.deletePet(selectedPet!).then((_) {
                 setState(() {
-                  pets.removeAt(index);
+                  petList.remove(selectedPet!);
+                  selectedPet = null;
+                  isAdding    = false;
                 });
                 Navigator.pop(context);
-              },
-              child: const Text('Yes'),
-            ),
-          ],
-        );
-      },
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Pet has been deleted.')),
+                );
+              });
+            },
+          ),
+          FilledButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
     );
   }
 
-  /// Builds the pet list section using the Week 6 lab pattern.
-  Widget ListPage() {
+  /// Shows an [AlertDialog] with instructions for using the Pet page.
+  void _showInstructions() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('How to use the Pet Page'),
+        content: const Text(
+          '1. Press "Add Pet" to create a new pet record.\n'
+              '2. Fill in all fields: name, birthday, species, colour, and owner ID.\n'
+              '3. Press "Submit" to save the pet to the database.\n'
+              '4. Tap a pet in the list to view or edit its details.\n'
+              '5. Use "Update" to save edits, or "Delete" to remove a pet.\n'
+              '6. Long-press a pet in the list for a quick-delete option.\n'
+              '7. When adding, you may load the previous pet\'s data using the copy option.',
+        ),
+        actions: [
+          FilledButton(
+            child: const Text('OK'),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Shows an [AlertDialog] asking whether to copy the previous pet's
+  /// fields from [EncryptedSharedPreferences] or start with a blank form.
+  void _startAddPet() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('New Pet'),
+        content: const Text('Would you like to copy the fields from the previous pet?'),
+        actions: [
+          FilledButton(
+            child: const Text('Copy previous'),
+            onPressed: () {
+              Navigator.pop(context);
+              _loadFromPrefs();
+              setState(() {
+                isAdding    = true;
+                selectedPet = null;
+              });
+            },
+          ),
+          FilledButton(
+            child: const Text('Start blank'),
+            onPressed: () {
+              Navigator.pop(context);
+              _clearForm();
+              setState(() {
+                isAdding    = true;
+                selectedPet = null;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Layout ─────────────────────────────────────────────────────────────────
+
+  /// Chooses between tablet (Row) and phone (single page) layout
+  /// based on screen dimensions, matching the professor's reactiveLayout style.
+  Widget _reactiveLayout() {
+    var size   = MediaQuery.of(context).size;
+    var width  = size.width;
+    var height = size.height;
+
+    if ((width > height) && (width > 720)) {
+      // Tablet landscape: list left, detail right
+      return Row(children: [
+        Expanded(flex: 2, child: _listPage()),
+        Expanded(flex: 3, child: _detailPage()),
+      ]);
+    } else {
+      // Phone portrait: show list OR detail
+      if (selectedPet == null && !isAdding) {
+        return _listPage();
+      } else {
+        return _detailPage();
+      }
+    }
+  }
+
+  // ── List page ──────────────────────────────────────────────────────────────
+
+  /// Builds the list of all pets with an Add Pet button at the top.
+  Widget _listPage() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        TextField(
-          controller: nameController,
-          decoration: const InputDecoration(
-            labelText: 'Name',
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton(
+            onPressed: _startAddPet,
+            child: const Text('Add Pet'),
           ),
         ),
-        TextField(
-          controller: birthdayController,
-          decoration: const InputDecoration(
-            labelText: 'Birthday',
-          ),
-        ),
-        TextField(
-          controller: speciesController,
-          decoration: const InputDecoration(
-            labelText: 'Species',
-          ),
-        ),
-        TextField(
-          controller: colourController,
-          decoration: const InputDecoration(
-            labelText: 'Colour',
-          ),
-        ),
-        TextField(
-          controller: ownerIdController,
-          decoration: const InputDecoration(
-            labelText: 'Owner ID',
-          ),
-        ),
-        const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: addPet,
-          child: const Text('Add'),
-        ),
-        const SizedBox(height: 10),
-        pets.isEmpty
-            ? const Text('There are no pets in the list')
-            : Expanded(
+        Expanded(
           child: ListView.builder(
-            itemCount: pets.length,
+            itemCount: petList.length,
             itemBuilder: (context, rowNum) {
+              final pet = petList[rowNum];
               return GestureDetector(
-                onLongPress: () {
-                  confirmDelete(rowNum);
+                onTap: () {
+                  setState(() {
+                    selectedPet              = pet;
+                    isAdding                 = false;
+                    _nameController.text     = pet.name;
+                    _birthdayController.text = pet.birthday;
+                    _speciesController.text  = pet.species;
+                    _colourController.text   = pet.colour;
+                    _ownerIDController.text  = pet.ownerID.toString();
+                  });
                 },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('${rowNum + 1}. ${pets[rowNum].name}'),
-                    Text(pets[rowNum].species),
-                  ],
+                onLongPress: () {
+                  setState(() { selectedPet = pet; });
+                  _confirmDelete();
+                },
+                child: ListTile(
+                  title: Text(pet.name),
+                  subtitle: Text('${pet.species} • Owner ID: ${pet.ownerID}'),
                 ),
               );
             },
@@ -176,16 +350,140 @@ class _PetPageState extends State<PetPage> {
     );
   }
 
+  // ── Detail page ────────────────────────────────────────────────────────────
+
+  /// Builds the detail/form page for adding or editing a pet.
+  /// Shows a placeholder message when nothing is selected.
+  Widget _detailPage() {
+    if (selectedPet == null && !isAdding) {
+      return const Center(
+        child: Text(
+          'Please select a pet from the list\nor press "Add Pet".',
+          style: TextStyle(fontSize: 24.0),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          Text(
+            isAdding ? 'Add New Pet' : 'Pet Details',
+            style: const TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+
+          TextField(
+            controller: _nameController,
+            decoration: const InputDecoration(
+              labelText: 'Name',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          TextField(
+            controller: _birthdayController,
+            decoration: const InputDecoration(
+              labelText: 'Birthday (YYYY-MM-DD)',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          TextField(
+            controller: _speciesController,
+            decoration: const InputDecoration(
+              labelText: 'Species (e.g. cat, dog, bird)',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          TextField(
+            controller: _colourController,
+            decoration: const InputDecoration(
+              labelText: 'Colour',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          TextField(
+            controller: _ownerIDController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Owner ID',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Buttons: Submit/Cancel when adding, Update/Delete/Close when viewing
+          if (isAdding) ...[
+            ElevatedButton(
+              onPressed: _addPet,
+              child: const Text('Submit'),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              onPressed: () {
+                setState(() {
+                  isAdding    = false;
+                  selectedPet = null;
+                });
+                _clearForm();
+              },
+              child: const Text('Cancel'),
+            ),
+          ] else ...[
+            ElevatedButton(
+              onPressed: _updatePet,
+              child: const Text('Update'),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              onPressed: _confirmDelete,
+              child: const Text('Delete'),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              onPressed: () {
+                setState(() {
+                  selectedPet = null;
+                  isAdding    = false;
+                });
+                _clearForm();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ── Build ──────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pet Page'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Pet List'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: 'Instructions',
+            onPressed: _showInstructions,
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: ListPage(),
-      ),
+      body: _reactiveLayout(),
     );
   }
 }

@@ -1,22 +1,36 @@
-//Dirgh
-/// Simple Pet class for Step 1.
-/// This version is only for the basic list page before Floor database is added.
+import 'package:floor/floor.dart';
+
+/// Represents a pet that is a patient of a veterinary clinic.
+/// This class is a Floor database entity.
+@entity
 class Pet {
-  /// Pet name.
+  /// Static auto-incrementing ID, must always be greater than any ID in the database.
+  static int ID = 1;
+
+  /// Creates a [Pet] with the given [id], [name], [birthday], [species], [colour], and [ownerID].
+  /// Automatically keeps [ID] ahead of the highest existing ID.
+  Pet(this.id, this.name, this.birthday, this.species, this.colour, this.ownerID) {
+    if (this.id >= ID) {
+      ID = this.id + 1;
+    }
+  }
+
+  /// Primary key, unique identifier for each pet.
+  @primaryKey
+  final int id;
+
+  /// The name of the pet.
   String name;
 
-  /// Pet birthday.
+  /// The birthday of the pet (stored as a String, e.g. "2020-03-15").
   String birthday;
 
-  /// Pet species.
+  /// The species of the pet (e.g. cat, dog, bird).
   String species;
 
-  /// Pet colour.
+  /// The colour of the pet.
   String colour;
 
-  /// Owner id.
-  String ownerId;
-
-  /// Creates one Pet object.
-  Pet(this.name, this.birthday, this.species, this.colour, this.ownerId);
+  /// The ID of the owner of this pet.
+  int ownerID;
 }

@@ -1,42 +1,6 @@
 {
-  "pet_pageTitle": "Pet Page",
-  "pet_addButton": "Add",
-  "pet_updateButton": "Update",
-  "pet_deleteButton": "Delete",
-  "pet_closeButton": "Close",
-  "pet_helpButton": "Help",
-  "pet_yesButton": "Yes",
-  "pet_noButton": "No",
-  "pet_cancelButton": "Cancel",
-
-  "pet_nameHint": "Name",
-  "pet_birthdayHint": "Birthday (YYYY-MM-DD)",
-  "pet_speciesHint": "Species (e.g. cat, dog, bird)",
-  "pet_colourHint": "Colour",
-  "pet_ownerIDHint": "Owner ID",
-
-  "pet_pleaseEnter": "Please enter a new Pet.",
-  "pet_emptyList": "There are no pets in the list.",
-  "pet_selectPrompt": "Please select a pet from the list.",
-
-  "pet_fillFields": "Please fill out all the fields before submission.",
-  "pet_fillFieldsUpdate": "Please fill out all the fields before updating.",
-
-  "pet_snackAdded": "has been added!",
-  "pet_snackUpdated": "Pet has been updated!",
-  "pet_snackDeleted": "Pet has been deleted.",
-
-  "pet_deleteTitle": "Delete this pet?",
-  "pet_deleteContent": "Are you sure you want to delete this pet?",
-
-  "pet_copyTitle": "New Pet",
-  "pet_copyContent": "Would you like to copy the fields from the previous pet?",
-
-  "pet_helpTitle": "How To Use the Pet Page",
-  "pet_helpContent": "Fill out all fields: name, birthday, species, colour, and owner ID.\nClick Add to save.\nTap a pet to view or edit.\nUse Update or Delete buttons.\nLong-press a pet for quick delete.",
-
-  "pet_birthday": "Birthday",
-  "pet_species": "Species",
-  "pet_colour": "Colour",
-  "pet_ownerID": "Owner ID"
+  "Name" : "Name",
+  "Birthday" : "Birthday",
+  "Address" : "Address",
+  "University" : "University"
 }

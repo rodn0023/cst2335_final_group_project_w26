@@ -38,5 +38,9 @@
   "pet_birthday": "જન્મ તારીખ",
   "pet_species": "પ્રજાતિ",
   "pet_colour": "રંગ",
-  "pet_ownerID": "માલિક ID"
+  "pet_ownerID": "માલિક ID",
+
+  "submitButton": "સબમિટ કરો",
+  "addPetTitle": "નવું પ્રાણી ઉમેરો",
+  "petDetailsTitle": "પ્રાણીની વિગતો"
 }

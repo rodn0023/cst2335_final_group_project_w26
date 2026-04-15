@@ -3,27 +3,40 @@ import 'Vaccine.dart';
 import 'VaccineDao.dart';
 import 'database.dart';
 
+/// Displays the vaccine management interface, including form entry,
+/// vaccine listing, responsive detail views, and CRUD operations.
 class VaccinePage extends StatefulWidget {
+  const VaccinePage({super.key});
 
   @override
   State<VaccinePage> createState() => VaccinePageState();
 }
 
+/// Manages the state, database access, form controllers,
+/// and responsive vaccine UI behavior.
 class VaccinePageState extends State<VaccinePage> {
-
-  // Controllers
+  /// Controller for the vaccine name field.
   late TextEditingController nameController;
+
+  /// Controller for the dosage field.
   late TextEditingController dosageController;
+
+  /// Controller for the lot number field.
   late TextEditingController lotNumberController;
+
+  /// Controller for the expiry date field.
   late TextEditingController expiryDateController;
 
-  // Data
+  /// In-memory list of vaccine records loaded from the database.
   List<Vaccine> vaccineList = [];
 
-  // Database
+  /// Floor database instance used for vaccine persistence.
   late AppDatabase database;
+
+  /// Data access object for vaccine operations.
   late VaccineDao dao;
 
+  /// Currently selected vaccine item for detail display and editing.
   Vaccine? selectedItem = null;
 
   @override
@@ -38,6 +51,7 @@ class VaccinePageState extends State<VaccinePage> {
     loadData();
   }
 
+  /// Loads all vaccine records from the database and refreshes the UI.
   void loadData() async {
     database = await $FloorAppDatabase.databaseBuilder('vaccine.db').build();
 
@@ -50,6 +64,36 @@ class VaccinePageState extends State<VaccinePage> {
     });
   }
 
+  /// Updates the selected vaccine entry in the database using
+  /// the current values entered in the form fields.
+  void updateVaccine() async {
+    if (selectedItem != null &&
+        nameController.text.isNotEmpty &&
+        dosageController.text.isNotEmpty &&
+        lotNumberController.text.isNotEmpty &&
+        expiryDateController.text.isNotEmpty) {
+      final updatedVaccine = Vaccine(
+        selectedItem!.id,
+        nameController.text,
+        dosageController.text,
+        lotNumberController.text,
+        expiryDateController.text,
+      );
+
+      await dao.updateVaccine(updatedVaccine);
+
+      await loadData();
+
+      setState(() {
+        selectedItem = null;
+        nameController.clear();
+        dosageController.clear();
+        lotNumberController.clear();
+        expiryDateController.clear();
+      });
+    }
+  }
+
   @override
   void dispose() {
     nameController.dispose();
@@ -59,6 +103,8 @@ class VaccinePageState extends State<VaccinePage> {
     super.dispose();
   }
 
+  /// Returns a responsive layout that shows a side-by-side interface
+  /// on wider screens and a single-page flow on smaller screens.
   Widget reactiveLayout() {
     var size = MediaQuery.of(context).size;
     var height = size.height;
@@ -86,6 +132,8 @@ class VaccinePageState extends State<VaccinePage> {
     }
   }
 
+  /// Displays the detail view for the selected vaccine item,
+  /// along with delete and close actions.
   Widget DetailsPage() {
     if (selectedItem != null) {
       return Center(
@@ -143,8 +191,12 @@ class VaccinePageState extends State<VaccinePage> {
                     await dao.deleteVaccine(selectedItem!);
 
                     setState(() {
-                      vaccineList.remove(selectedItem);
+                      vaccineList.remove(selectedItem!);
                       selectedItem = null;
+                      nameController.clear();
+                      dosageController.clear();
+                      lotNumberController.clear();
+                      expiryDateController.clear();
                     });
                   },
                   child: Text("Delete"),
@@ -156,6 +208,10 @@ class VaccinePageState extends State<VaccinePage> {
                   onPressed: () {
                     setState(() {
                       selectedItem = null;
+                      nameController.clear();
+                      dosageController.clear();
+                      lotNumberController.clear();
+                      expiryDateController.clear();
                     });
                   },
                   child: Text("Close"),
@@ -178,13 +234,12 @@ class VaccinePageState extends State<VaccinePage> {
     }
   }
 
+  /// Builds the main vaccine form and vaccine list interface.
   Widget ListPage() {
     return Padding(
       padding: EdgeInsets.all(10),
       child: Column(
         children: [
-
-          // Title
           Text(
             "Vaccine Registration",
             style: TextStyle(
@@ -192,7 +247,6 @@ class VaccinePageState extends State<VaccinePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-
           Padding(
             padding: EdgeInsets.all(8),
             child: Text(
@@ -201,7 +255,7 @@ class VaccinePageState extends State<VaccinePage> {
             ),
           ),
 
-          // Input Fields
+          /// Vaccine name input field.
           TextField(
             controller: nameController,
             decoration: InputDecoration(
@@ -210,6 +264,7 @@ class VaccinePageState extends State<VaccinePage> {
             ),
           ),
 
+          /// Dosage input field.
           Padding(
             padding: EdgeInsets.only(top: 10),
             child: TextField(
@@ -221,6 +276,7 @@ class VaccinePageState extends State<VaccinePage> {
             ),
           ),
 
+          /// Lot number input field.
           Padding(
             padding: EdgeInsets.only(top: 10),
             child: TextField(
@@ -232,6 +288,7 @@ class VaccinePageState extends State<VaccinePage> {
             ),
           ),
 
+          /// Expiry date input field.
           Padding(
             padding: EdgeInsets.only(top: 10),
             child: TextField(
@@ -243,16 +300,17 @@ class VaccinePageState extends State<VaccinePage> {
             ),
           ),
 
-          // Add Button
+          /// Shows add mode when nothing is selected, and edit mode
+          /// when a vaccine has been chosen from the list.
           Padding(
             padding: EdgeInsets.all(10),
-            child: ElevatedButton(
+            child: selectedItem == null
+                ? ElevatedButton(
               onPressed: () async {
                 if (nameController.text.isNotEmpty &&
                     dosageController.text.isNotEmpty &&
                     lotNumberController.text.isNotEmpty &&
                     expiryDateController.text.isNotEmpty) {
-
                   final newVaccine = Vaccine(
                     Vaccine.globalID++,
                     nameController.text,
@@ -274,10 +332,33 @@ class VaccinePageState extends State<VaccinePage> {
                 }
               },
               child: Text("Save Vaccine"),
+            )
+                : Column(
+              children: [
+                ElevatedButton(
+                  onPressed: updateVaccine,
+                  child: Text("Update Vaccine"),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedItem = null;
+                        nameController.clear();
+                        dosageController.clear();
+                        lotNumberController.clear();
+                        expiryDateController.clear();
+                      });
+                    },
+                    child: Text("Cancel Edit"),
+                  ),
+                ),
+              ],
             ),
           ),
 
-          // Empty Message
+          /// Displays a message when no vaccine records are available.
           if (vaccineList.isEmpty)
             Padding(
               padding: EdgeInsets.all(10),
@@ -287,53 +368,52 @@ class VaccinePageState extends State<VaccinePage> {
               ),
             ),
 
-          // List View
+          /// Displays all saved vaccine records in a scrollable list.
           Expanded(
             child: ListView.builder(
               itemCount: vaccineList.length,
               itemBuilder: (context, rowNum) {
-
                 final item = vaccineList[rowNum];
 
                 return GestureDetector(
-
                   onTap: () {
                     setState(() {
                       selectedItem = item;
-
                       nameController.text = item.name;
                       dosageController.text = item.dosage;
                       lotNumberController.text = item.lotNumber;
                       expiryDateController.text = item.expiryDate;
                     });
                   },
-
                   onLongPress: () {
                     showDialog(
                       context: context,
                       builder: (context) {
                         return AlertDialog(
                           title: Text("Remove Vaccine?"),
-                          content: Text("Are you sure you want to delete this vaccine registration?"),
+                          content: Text(
+                            "Are you sure you want to delete this vaccine registration?",
+                          ),
                           actions: [
-
                             TextButton(
                               child: Text("Yes"),
                               onPressed: () async {
-
                                 await dao.deleteVaccine(item);
 
                                 setState(() {
                                   vaccineList.remove(item);
                                   if (selectedItem == item) {
                                     selectedItem = null;
+                                    nameController.clear();
+                                    dosageController.clear();
+                                    lotNumberController.clear();
+                                    expiryDateController.clear();
                                   }
                                 });
 
                                 Navigator.pop(context);
                               },
                             ),
-
                             TextButton(
                               child: Text("No"),
                               onPressed: () {
@@ -345,7 +425,6 @@ class VaccinePageState extends State<VaccinePage> {
                       },
                     );
                   },
-
                   child: Padding(
                     padding: EdgeInsets.all(8),
                     child: Container(
@@ -356,7 +435,6 @@ class VaccinePageState extends State<VaccinePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-
                           Text(
                             "${rowNum + 1}. ${item.name}",
                             style: TextStyle(
@@ -364,7 +442,6 @@ class VaccinePageState extends State<VaccinePage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-
                           Text("Dosage: ${item.dosage}"),
                           Text("Lot Number: ${item.lotNumber}"),
                           Text("Expiry Date: ${item.expiryDate}"),
@@ -381,6 +458,7 @@ class VaccinePageState extends State<VaccinePage> {
     );
   }
 
+  /// Builds the vaccine page scaffold and displays the responsive layout.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

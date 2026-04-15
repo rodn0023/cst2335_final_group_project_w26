@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'Vaccine.dart';
 import 'VaccineDao.dart';
 import 'database.dart';
@@ -6,8 +7,6 @@ import 'database.dart';
 /// Displays the vaccine management interface, including form entry,
 /// vaccine listing, responsive detail views, and CRUD operations.
 class VaccinePage extends StatefulWidget {
-  const VaccinePage({super.key});
-
   @override
   State<VaccinePage> createState() => VaccinePageState();
 }
@@ -39,6 +38,9 @@ class VaccinePageState extends State<VaccinePage> {
   /// Currently selected vaccine item for detail display and editing.
   Vaccine? selectedItem = null;
 
+  /// Secure storage for persisting last entered vaccine data.
+  final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
+
   @override
   void initState() {
     super.initState();
@@ -49,12 +51,12 @@ class VaccinePageState extends State<VaccinePage> {
     expiryDateController = TextEditingController();
 
     loadData();
+    loadSavedData();
   }
 
   /// Loads all vaccine records from the database and refreshes the UI.
   void loadData() async {
     database = await $FloorAppDatabase.databaseBuilder('vaccine.db').build();
-
     dao = database.vaccineDao;
 
     final list = await dao.findAllVaccines();
@@ -62,6 +64,62 @@ class VaccinePageState extends State<VaccinePage> {
     setState(() {
       vaccineList = list;
     });
+  }
+
+  /// Loads previously saved vaccine entry from encrypted storage
+  /// and populates the form fields if data exists.
+  void loadSavedData() async {
+    String name = await prefs.getString("name");
+    String dosage = await prefs.getString("dosage");
+    String lot = await prefs.getString("lot");
+    String expiry = await prefs.getString("expiry");
+
+    if (name != "" && dosage != "" && lot != "" && expiry != "") {
+      nameController.text = name;
+      dosageController.text = dosage;
+      lotNumberController.text = lot;
+      expiryDateController.text = expiry;
+
+      /// Displays feedback that stored data has been loaded.
+      Future.delayed(Duration.zero, () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Previous vaccine entry loaded")),
+        );
+      });
+    }
+  }
+
+  /// Prompts the user to save or discard the entered vaccine data
+  /// for reuse in future sessions.
+  void showSaveDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Save Entry"),
+          content: Text("Reuse this vaccine entry next time?"),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await prefs.clear();
+                Navigator.pop(context);
+              },
+              child: Text("No"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await prefs.setString("name", nameController.text);
+                await prefs.setString("dosage", dosageController.text);
+                await prefs.setString("lot", lotNumberController.text);
+                await prefs.setString("expiry", expiryDateController.text);
+                Navigator.pop(context);
+              },
+              child: Text("Yes"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   /// Updates the selected vaccine entry in the database using
@@ -72,6 +130,7 @@ class VaccinePageState extends State<VaccinePage> {
         dosageController.text.isNotEmpty &&
         lotNumberController.text.isNotEmpty &&
         expiryDateController.text.isNotEmpty) {
+
       final updatedVaccine = Vaccine(
         selectedItem!.id,
         nameController.text,
@@ -81,7 +140,6 @@ class VaccinePageState extends State<VaccinePage> {
       );
 
       await dao.updateVaccine(updatedVaccine);
-
       await loadData();
 
       setState(() {
@@ -91,7 +149,36 @@ class VaccinePageState extends State<VaccinePage> {
         lotNumberController.clear();
         expiryDateController.clear();
       });
+
+      /// Snackbar confirming update action.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Vaccine updated successfully")),
+      );
     }
+  }
+
+  /// Displays a help dialog explaining how to use the interface.
+  void showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("How to Use"),
+          content: Text(
+            "1. Enter vaccine details\n"
+                "2. Click Save Vaccine\n"
+                "3. Tap item to edit\n"
+                "4. Long press to delete\n",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Close"),
+            )
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -113,22 +200,12 @@ class VaccinePageState extends State<VaccinePage> {
     if ((width > height) && (width > 720)) {
       return Row(
         children: [
-          Expanded(
-            flex: 2,
-            child: ListPage(),
-          ),
-          Expanded(
-            flex: 3,
-            child: DetailsPage(),
-          ),
+          Expanded(flex: 2, child: ListPage()),
+          Expanded(flex: 3, child: DetailsPage()),
         ],
       );
     } else {
-      if (selectedItem == null) {
-        return ListPage();
-      } else {
-        return DetailsPage();
-      }
+      return selectedItem == null ? ListPage() : DetailsPage();
     }
   }
 
@@ -142,95 +219,44 @@ class VaccinePageState extends State<VaccinePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                "Vaccine Details",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Text(
-                  "Database ID: ${selectedItem!.id}",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: Text(
-                  "Name: ${selectedItem!.name}",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: Text(
-                  "Dosage: ${selectedItem!.dosage}",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: Text(
-                  "Lot Number: ${selectedItem!.lotNumber}",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: Text(
-                  "Expiry Date: ${selectedItem!.expiryDate}",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 30),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await dao.deleteVaccine(selectedItem!);
+              Text("Vaccine Details", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              Text("Name: ${selectedItem!.name}"),
+              Text("Dosage: ${selectedItem!.dosage}"),
+              Text("Lot: ${selectedItem!.lotNumber}"),
+              Text("Expiry: ${selectedItem!.expiryDate}"),
 
-                    setState(() {
-                      vaccineList.remove(selectedItem!);
-                      selectedItem = null;
-                      nameController.clear();
-                      dosageController.clear();
-                      lotNumberController.clear();
-                      expiryDateController.clear();
-                    });
-                  },
-                  child: Text("Delete"),
-                ),
+              /// Deletes the selected vaccine from database and UI.
+              ElevatedButton(
+                onPressed: () async {
+                  await dao.deleteVaccine(selectedItem!);
+
+                  setState(() {
+                    vaccineList.remove(selectedItem!);
+                    selectedItem = null;
+                  });
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Vaccine removed")),
+                  );
+                },
+                child: Text("Delete"),
               ),
-              Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      selectedItem = null;
-                      nameController.clear();
-                      dosageController.clear();
-                      lotNumberController.clear();
-                      expiryDateController.clear();
-                    });
-                  },
-                  child: Text("Close"),
-                ),
+
+              /// Closes the detail view without deleting.
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    selectedItem = null;
+                  });
+                },
+                child: Text("Close"),
               ),
             ],
           ),
         ),
       );
     } else {
-      return Center(
-        child: Text(
-          "Please select a vaccine from the list.",
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      );
+      return Center(child: Text("Select a vaccine"));
     }
   }
 
@@ -240,68 +266,14 @@ class VaccinePageState extends State<VaccinePage> {
       padding: EdgeInsets.all(10),
       child: Column(
         children: [
-          Text(
-            "Vaccine Registration",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(8),
-            child: Text(
-              "Enter vaccine details below and save them to the list.",
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
 
-          /// Vaccine name input field.
-          TextField(
-            controller: nameController,
-            decoration: InputDecoration(
-              hintText: "Vaccine Name",
-              border: OutlineInputBorder(),
-            ),
-          ),
+          /// Input fields for vaccine details.
+          TextField(controller: nameController, decoration: InputDecoration(hintText: "Name")),
+          TextField(controller: dosageController, decoration: InputDecoration(hintText: "Dosage")),
+          TextField(controller: lotNumberController, decoration: InputDecoration(hintText: "Lot")),
+          TextField(controller: expiryDateController, decoration: InputDecoration(hintText: "Expiry")),
 
-          /// Dosage input field.
-          Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: TextField(
-              controller: dosageController,
-              decoration: InputDecoration(
-                hintText: "Dosage",
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-
-          /// Lot number input field.
-          Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: TextField(
-              controller: lotNumberController,
-              decoration: InputDecoration(
-                hintText: "Lot Number",
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-
-          /// Expiry date input field.
-          Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: TextField(
-              controller: expiryDateController,
-              decoration: InputDecoration(
-                hintText: "Expiry Date",
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-
-          /// Shows add mode when nothing is selected, and edit mode
-          /// when a vaccine has been chosen from the list.
+          /// Handles both add and update modes depending on selection state.
           Padding(
             padding: EdgeInsets.all(10),
             child: selectedItem == null
@@ -311,6 +283,7 @@ class VaccinePageState extends State<VaccinePage> {
                     dosageController.text.isNotEmpty &&
                     lotNumberController.text.isNotEmpty &&
                     expiryDateController.text.isNotEmpty) {
+
                   final newVaccine = Vaccine(
                     Vaccine.globalID++,
                     nameController.text,
@@ -321,6 +294,9 @@ class VaccinePageState extends State<VaccinePage> {
 
                   await dao.insertVaccine(newVaccine);
 
+                  /// Prompt user to save entry for reuse.
+                  showSaveDialog();
+
                   setState(() {
                     vaccineList.add(newVaccine);
                   });
@@ -329,51 +305,27 @@ class VaccinePageState extends State<VaccinePage> {
                   dosageController.clear();
                   lotNumberController.clear();
                   expiryDateController.clear();
+
+                  /// Snackbar confirming save action.
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Vaccine saved successfully")),
+                  );
                 }
               },
               child: Text("Save Vaccine"),
             )
-                : Column(
-              children: [
-                ElevatedButton(
-                  onPressed: updateVaccine,
-                  child: Text("Update Vaccine"),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        selectedItem = null;
-                        nameController.clear();
-                        dosageController.clear();
-                        lotNumberController.clear();
-                        expiryDateController.clear();
-                      });
-                    },
-                    child: Text("Cancel Edit"),
-                  ),
-                ),
-              ],
+                : ElevatedButton(
+              onPressed: updateVaccine,
+              child: Text("Update Vaccine"),
             ),
           ),
-
-          /// Displays a message when no vaccine records are available.
-          if (vaccineList.isEmpty)
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: Text(
-                "No vaccines have been added to the list yet.",
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
 
           /// Displays all saved vaccine records in a scrollable list.
           Expanded(
             child: ListView.builder(
               itemCount: vaccineList.length,
-              itemBuilder: (context, rowNum) {
-                final item = vaccineList[rowNum];
+              itemBuilder: (context, index) {
+                final item = vaccineList[index];
 
                 return GestureDetector(
                   onTap: () {
@@ -385,69 +337,9 @@ class VaccinePageState extends State<VaccinePage> {
                       expiryDateController.text = item.expiryDate;
                     });
                   },
-                  onLongPress: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text("Remove Vaccine?"),
-                          content: Text(
-                            "Are you sure you want to delete this vaccine registration?",
-                          ),
-                          actions: [
-                            TextButton(
-                              child: Text("Yes"),
-                              onPressed: () async {
-                                await dao.deleteVaccine(item);
-
-                                setState(() {
-                                  vaccineList.remove(item);
-                                  if (selectedItem == item) {
-                                    selectedItem = null;
-                                    nameController.clear();
-                                    dosageController.clear();
-                                    lotNumberController.clear();
-                                    expiryDateController.clear();
-                                  }
-                                });
-
-                                Navigator.pop(context);
-                              },
-                            ),
-                            TextButton(
-                              child: Text("No"),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "${rowNum + 1}. ${item.name}",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text("Dosage: ${item.dosage}"),
-                          Text("Lot Number: ${item.lotNumber}"),
-                          Text("Expiry Date: ${item.expiryDate}"),
-                        ],
-                      ),
-                    ),
+                  child: ListTile(
+                    title: Text(item.name),
+                    subtitle: Text("Dosage: ${item.dosage}"),
                   ),
                 );
               },
@@ -464,6 +356,12 @@ class VaccinePageState extends State<VaccinePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Vaccine Page"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info),
+            onPressed: showHelpDialog,
+          ),
+        ],
       ),
       body: reactiveLayout(),
     );

@@ -3,26 +3,31 @@ import 'Vaccine.dart';
 import 'VaccineDao.dart';
 import 'database.dart';
 
-class VaccinePage extends StatefulWidget{
+class VaccinePage extends StatefulWidget {
+
   @override
   State<VaccinePage> createState() => VaccinePageState();
 }
 
-class VaccinePageState extends State<VaccinePage>
-{
+class VaccinePageState extends State<VaccinePage> {
+
+  // Controllers
   late TextEditingController nameController;
   late TextEditingController dosageController;
   late TextEditingController lotNumberController;
   late TextEditingController expiryDateController;
 
+  // Data
   List<Vaccine> vaccineList = [];
 
+  // Database
   late AppDatabase database;
   late VaccineDao dao;
 
   @override
   void initState() {
     super.initState();
+
     nameController = TextEditingController();
     dosageController = TextEditingController();
     lotNumberController = TextEditingController();
@@ -57,6 +62,8 @@ class VaccinePageState extends State<VaccinePage>
       padding: EdgeInsets.all(10),
       child: Column(
         children: [
+
+          // Title
           Text(
             "Vaccine Registration",
             style: TextStyle(
@@ -73,6 +80,7 @@ class VaccinePageState extends State<VaccinePage>
             ),
           ),
 
+          // Input Fields
           TextField(
             controller: nameController,
             decoration: InputDecoration(
@@ -82,18 +90,18 @@ class VaccinePageState extends State<VaccinePage>
           ),
 
           Padding(
-            padding: EdgeInsets.only(top:10),
+            padding: EdgeInsets.only(top: 10),
             child: TextField(
               controller: dosageController,
               decoration: InputDecoration(
                 hintText: "Dosage",
                 border: OutlineInputBorder(),
               ),
-           ),
+            ),
           ),
 
           Padding(
-            padding: EdgeInsets.only(top:10),
+            padding: EdgeInsets.only(top: 10),
             child: TextField(
               controller: lotNumberController,
               decoration: InputDecoration(
@@ -104,7 +112,7 @@ class VaccinePageState extends State<VaccinePage>
           ),
 
           Padding(
-            padding: EdgeInsets.only(top:10),
+            padding: EdgeInsets.only(top: 10),
             child: TextField(
               controller: expiryDateController,
               decoration: InputDecoration(
@@ -114,6 +122,7 @@ class VaccinePageState extends State<VaccinePage>
             ),
           ),
 
+          // Add Button
           Padding(
             padding: EdgeInsets.all(10),
             child: ElevatedButton(
@@ -143,11 +152,11 @@ class VaccinePageState extends State<VaccinePage>
                   expiryDateController.clear();
                 }
               },
-
               child: Text("Save Vaccine"),
             ),
           ),
 
+          // Empty Message
           if (vaccineList.isEmpty)
             Padding(
               padding: EdgeInsets.all(10),
@@ -157,6 +166,7 @@ class VaccinePageState extends State<VaccinePage>
               ),
             ),
 
+          // List View
           Expanded(
             child: ListView.builder(
               itemCount: vaccineList.length,
@@ -164,27 +174,67 @@ class VaccinePageState extends State<VaccinePage>
 
                 final item = vaccineList[rowNum];
 
-                return Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.gray),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: crossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${rowNum + 1}. ${item.name}",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                return GestureDetector(
+
+                  onLongPress: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Remove Vaccine?"),
+                          content: Text("Are you sure you want to delete this vaccine registration?"),
+                          actions: [
+
+                            TextButton(
+                              child: Text("Yes"),
+                              onPressed: () async {
+
+                                await dao.deleteVaccine(item);
+
+                                setState(() {
+                                  vaccineList.removeAt(rowNum);
+                                });
+
+                                Navigator.pop(context);
+                              },
+                            ),
+
+                            TextButton(
+                              child: Text("No"),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+
+                  child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+
+                          Text(
+                            "${rowNum + 1}. ${item.name}",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        Text("Dosage: ${item.dosage}"),
-                        Text("Lot Number: ${item.lotNumber}"),
-                        Text("Expiry Date: ${item.expiryDate}"),
-                      ],
+
+                          Text("Dosage: ${item.dosage}"),
+                          Text("Lot Number: ${item.lotNumber}"),
+                          Text("Expiry Date: ${item.expiryDate}"),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -196,15 +246,13 @@ class VaccinePageState extends State<VaccinePage>
     );
   }
 
-  //this returns how this looks on the page
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-        appBar: AppBar(
-            title: Text("Vaccine Page")
-        ),
-        body: ListPage(),
+      appBar: AppBar(
+        title: Text("Vaccine Page"),
+      ),
+      body: ListPage(),
     );
   }
 }

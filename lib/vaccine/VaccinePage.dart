@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'Vaccine.dart';
+import 'VaccineDao.dart';
+import 'database.dart';
 
 class VaccinePage extends StatefulWidget{
   @override
@@ -15,6 +17,9 @@ class VaccinePageState extends State<VaccinePage>
 
   List<Vaccine> vaccineList = [];
 
+  late AppDatabase database;
+  late VaccineDao dao;
+
   @override
   void initState() {
     super.initState();
@@ -22,15 +27,29 @@ class VaccinePageState extends State<VaccinePage>
     dosageController = TextEditingController();
     lotNumberController = TextEditingController();
     expiryDateController = TextEditingController();
+
+    loadData();
+  }
+
+  void loadData() async {
+    database = await $FloorAppDatabase.databaseBuilder('vaccine.db').build();
+
+    dao = database.vaccineDao;
+
+    final list = await dao.findAllVaccines();
+
+    setState(() {
+      vaccineList = list;
+    });
   }
 
   @override
   void dispose() {
-    super.dispose();
     nameController.dispose();
     dosageController.dispose();
     lotNumberController.dispose();
     expiryDateController.dispose();
+    super.dispose();
   }
 
   Widget ListPage() {
@@ -98,11 +117,12 @@ class VaccinePageState extends State<VaccinePage>
           Padding(
             padding: EdgeInsets.all(10),
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 if (nameController.text.isNotEmpty &&
                     dosageController.text.isNotEmpty &&
                     lotNumberController.text.isNotEmpty &&
                     expiryDateController.text.isNotEmpty) {
+
                   final newVaccine = Vaccine(
                     Vaccine.globalID++,
                     nameController.text,
@@ -110,6 +130,8 @@ class VaccinePageState extends State<VaccinePage>
                     lotNumberController.text,
                     expiryDateController.text,
                   );
+
+                  await dao.insertVaccine(newVaccine);
 
                   setState(() {
                     vaccineList.add(newVaccine);
@@ -139,6 +161,9 @@ class VaccinePageState extends State<VaccinePage>
             child: ListView.builder(
               itemCount: vaccineList.length,
               itemBuilder: (context, rowNum) {
+
+                final item = vaccineList[rowNum];
+
                 return Padding(
                   padding: EdgeInsets.all(8),
                   child: Container(
@@ -150,15 +175,15 @@ class VaccinePageState extends State<VaccinePage>
                       crossAxisAlignment: crossAxisAlignment.start,
                       children: [
                         Text(
-                          "${rowNum + 1}. ${vaccineList[rowNum].name}",
+                          "${rowNum + 1}. ${item.name}",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text("Dosage: ${vaccineList[rowNum].dosage}"),
-                        Text("Lot Number: ${vaccineList[rowNum].lotNumber}"),
-                        Text("Expiry Date: ${vaccineList[rowNum].expiryDate}"),
+                        Text("Dosage: ${item.dosage}"),
+                        Text("Lot Number: ${item.lotNumber}"),
+                        Text("Expiry Date: ${item.expiryDate}"),
                       ],
                     ),
                   ),

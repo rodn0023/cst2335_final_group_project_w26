@@ -1,0 +1,34 @@
+{
+  "vaccine_page": "Página de Vacunas",
+  "vaccine_title": "Registro de Vacunas",
+
+  "vaccine_name": "Nombre",
+  "vaccine_dosage": "Dosis",
+  "vaccine_lot": "Lote",
+  "vaccine_expiry": "Fecha de vencimiento",
+
+  "vaccine_save": "Guardar Vacuna",
+  "vaccine_update": "Actualizar Vacuna",
+  "vaccine_cancel": "Cancelar Edición",
+
+  "vaccine_delete_title": "¿Eliminar vacuna?",
+  "vaccine_delete_message": "¿Está seguro de que desea eliminar este registro?",
+
+  "vaccine_details": "Detalles de la vacuna",
+  "vaccine_select_prompt": "Seleccione una vacuna",
+
+  "vaccine_help_title": "Cómo usar",
+  "vaccine_help_text": "1. Ingrese los detalles\n2. Presione Guardar\n3. Toque para editar\n4. Mantenga presionado para eliminar",
+
+  "vaccine_close": "Cerrar",
+
+  "vaccine_snackbar_saved": "Vacuna guardada correctamente",
+  "vaccine_snackbar_deleted": "Vacuna eliminada",
+  "vaccine_snackbar_updated": "Vacuna actualizada",
+  "vaccine_snackbar_loaded": "Datos anteriores cargados",
+
+  "vaccine_save_dialog_title": "Guardar entrada",
+  "vaccine_save_dialog_message": "¿Desea reutilizar esta entrada la próxima vez?",
+  "vaccine_yes": "Sí",
+  "vaccine_no": "No"
+}

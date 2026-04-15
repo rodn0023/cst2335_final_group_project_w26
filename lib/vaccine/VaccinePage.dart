@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
+import '../AppLocalizations.dart';
+import '../main.dart';
 import 'Vaccine.dart';
 import 'VaccineDao.dart';
 import 'database.dart';
@@ -14,6 +16,7 @@ class VaccinePage extends StatefulWidget {
 /// Manages the state, database access, form controllers,
 /// and responsive vaccine UI behavior.
 class VaccinePageState extends State<VaccinePage> {
+
   /// Controller for the vaccine name field.
   late TextEditingController nameController;
 
@@ -69,6 +72,8 @@ class VaccinePageState extends State<VaccinePage> {
   /// Loads previously saved vaccine entry from encrypted storage
   /// and populates the form fields if data exists.
   void loadSavedData() async {
+    var t = AppLocalizations.of(context)!;
+
     String name = await prefs.getString("name");
     String dosage = await prefs.getString("dosage");
     String lot = await prefs.getString("lot");
@@ -83,7 +88,7 @@ class VaccinePageState extends State<VaccinePage> {
       /// Displays feedback that stored data has been loaded.
       Future.delayed(Duration.zero, () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Previous vaccine entry loaded")),
+          SnackBar(content: Text(t.translate("vaccine_snackbar_loaded")!)),
         );
       });
     }
@@ -92,19 +97,21 @@ class VaccinePageState extends State<VaccinePage> {
   /// Prompts the user to save or discard the entered vaccine data
   /// for reuse in future sessions.
   void showSaveDialog() async {
+    var t = AppLocalizations.of(context)!;
+
     await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Save Entry"),
-          content: Text("Reuse this vaccine entry next time?"),
+          title: Text(t.translate("vaccine_save_dialog_title")!),
+          content: Text(t.translate("vaccine_save_dialog_message")!),
           actions: [
             TextButton(
               onPressed: () async {
                 await prefs.clear();
                 Navigator.pop(context);
               },
-              child: Text("No"),
+              child: Text(t.translate("vaccine_no")!),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -114,7 +121,7 @@ class VaccinePageState extends State<VaccinePage> {
                 await prefs.setString("expiry", expiryDateController.text);
                 Navigator.pop(context);
               },
-              child: Text("Yes"),
+              child: Text(t.translate("vaccine_yes")!),
             ),
           ],
         );
@@ -125,6 +132,8 @@ class VaccinePageState extends State<VaccinePage> {
   /// Updates the selected vaccine entry in the database using
   /// the current values entered in the form fields.
   void updateVaccine() async {
+    var t = AppLocalizations.of(context)!;
+
     if (selectedItem != null &&
         nameController.text.isNotEmpty &&
         dosageController.text.isNotEmpty &&
@@ -140,7 +149,7 @@ class VaccinePageState extends State<VaccinePage> {
       );
 
       await dao.updateVaccine(updatedVaccine);
-      await loadData();
+      loadData();
 
       setState(() {
         selectedItem = null;
@@ -152,28 +161,25 @@ class VaccinePageState extends State<VaccinePage> {
 
       /// Snackbar confirming update action.
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Vaccine updated successfully")),
+        SnackBar(content: Text(t.translate("vaccine_snackbar_updated")!)),
       );
     }
   }
 
   /// Displays a help dialog explaining how to use the interface.
   void showHelpDialog() {
+    var t = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("How to Use"),
-          content: Text(
-            "1. Enter vaccine details\n"
-                "2. Click Save Vaccine\n"
-                "3. Tap item to edit\n"
-                "4. Long press to delete\n",
-          ),
+          title: Text(t.translate("vaccine_help_title")!),
+          content: Text(t.translate("vaccine_help_text")!),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text("Close"),
+              child: Text(t.translate("vaccine_close")!),
             )
           ],
         );
@@ -194,10 +200,8 @@ class VaccinePageState extends State<VaccinePage> {
   /// on wider screens and a single-page flow on smaller screens.
   Widget reactiveLayout() {
     var size = MediaQuery.of(context).size;
-    var height = size.height;
-    var width = size.width;
 
-    if ((width > height) && (width > 720)) {
+    if ((size.width > size.height) && (size.width > 720)) {
       return Row(
         children: [
           Expanded(flex: 2, child: ListPage()),
@@ -212,6 +216,8 @@ class VaccinePageState extends State<VaccinePage> {
   /// Displays the detail view for the selected vaccine item,
   /// along with delete and close actions.
   Widget DetailsPage() {
+    var t = AppLocalizations.of(context)!;
+
     if (selectedItem != null) {
       return Center(
         child: Padding(
@@ -219,11 +225,11 @@ class VaccinePageState extends State<VaccinePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Vaccine Details", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-              Text("Name: ${selectedItem!.name}"),
-              Text("Dosage: ${selectedItem!.dosage}"),
-              Text("Lot: ${selectedItem!.lotNumber}"),
-              Text("Expiry: ${selectedItem!.expiryDate}"),
+              Text(t.translate("vaccine_details")!),
+              Text("${t.translate("vaccine_name")}: ${selectedItem!.name}"),
+              Text("${t.translate("vaccine_dosage")}: ${selectedItem!.dosage}"),
+              Text("${t.translate("vaccine_lot")}: ${selectedItem!.lotNumber}"),
+              Text("${t.translate("vaccine_expiry")}: ${selectedItem!.expiryDate}"),
 
               /// Deletes the selected vaccine from database and UI.
               ElevatedButton(
@@ -236,10 +242,10 @@ class VaccinePageState extends State<VaccinePage> {
                   });
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Vaccine removed")),
+                    SnackBar(content: Text(t.translate("vaccine_snackbar_deleted")!)),
                   );
                 },
-                child: Text("Delete"),
+                child: Text(t.translate("vaccine_delete_title")!),
               ),
 
               /// Closes the detail view without deleting.
@@ -249,29 +255,31 @@ class VaccinePageState extends State<VaccinePage> {
                     selectedItem = null;
                   });
                 },
-                child: Text("Close"),
+                child: Text(t.translate("vaccine_close")!),
               ),
             ],
           ),
         ),
       );
     } else {
-      return Center(child: Text("Select a vaccine"));
+      return Center(child: Text(t.translate("vaccine_select_prompt")!));
     }
   }
 
   /// Builds the main vaccine form and vaccine list interface.
   Widget ListPage() {
+    var t = AppLocalizations.of(context)!;
+
     return Padding(
       padding: EdgeInsets.all(10),
       child: Column(
         children: [
 
           /// Input fields for vaccine details.
-          TextField(controller: nameController, decoration: InputDecoration(hintText: "Name")),
-          TextField(controller: dosageController, decoration: InputDecoration(hintText: "Dosage")),
-          TextField(controller: lotNumberController, decoration: InputDecoration(hintText: "Lot")),
-          TextField(controller: expiryDateController, decoration: InputDecoration(hintText: "Expiry")),
+          TextField(controller: nameController, decoration: InputDecoration(hintText: t.translate("vaccine_name"))),
+          TextField(controller: dosageController, decoration: InputDecoration(hintText: t.translate("vaccine_dosage"))),
+          TextField(controller: lotNumberController, decoration: InputDecoration(hintText: t.translate("vaccine_lot"))),
+          TextField(controller: expiryDateController, decoration: InputDecoration(hintText: t.translate("vaccine_expiry"))),
 
           /// Handles both add and update modes depending on selection state.
           Padding(
@@ -308,15 +316,15 @@ class VaccinePageState extends State<VaccinePage> {
 
                   /// Snackbar confirming save action.
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Vaccine saved successfully")),
+                    SnackBar(content: Text(t.translate("vaccine_snackbar_saved")!)),
                   );
                 }
               },
-              child: Text("Save Vaccine"),
+              child: Text(t.translate("vaccine_save")!),
             )
                 : ElevatedButton(
               onPressed: updateVaccine,
-              child: Text("Update Vaccine"),
+              child: Text(t.translate("vaccine_update")!),
             ),
           ),
 
@@ -339,7 +347,7 @@ class VaccinePageState extends State<VaccinePage> {
                   },
                   child: ListTile(
                     title: Text(item.name),
-                    subtitle: Text("Dosage: ${item.dosage}"),
+                    subtitle: Text("${t.translate("vaccine_dosage")}: ${item.dosage}"),
                   ),
                 );
               },
@@ -353,10 +361,18 @@ class VaccinePageState extends State<VaccinePage> {
   /// Builds the vaccine page scaffold and displays the responsive layout.
   @override
   Widget build(BuildContext context) {
+    var t = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Vaccine Page"),
+        title: Text(t.translate("vaccine_page")!),
         actions: [
+          IconButton(
+            icon: Icon(Icons.language),
+            onPressed: () {
+              MyApp.setLocale(context, Locale("es", "ES"));
+            },
+          ),
           IconButton(
             icon: Icon(Icons.info),
             onPressed: showHelpDialog,

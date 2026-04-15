@@ -1,38 +1,38 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'PetDatabase.dart';
+part of 'database.dart';
 
 // **************************************************************************
 // FloorGenerator
 // **************************************************************************
 
-abstract class $PetDatabaseBuilderContract {
+abstract class $AppDatabaseBuilderContract {
   /// Adds migrations to the builder.
-  $PetDatabaseBuilderContract addMigrations(List<Migration> migrations);
+  $AppDatabaseBuilderContract addMigrations(List<Migration> migrations);
 
   /// Adds a database [Callback] to the builder.
-  $PetDatabaseBuilderContract addCallback(Callback callback);
+  $AppDatabaseBuilderContract addCallback(Callback callback);
 
   /// Creates the database and initializes it.
-  Future<PetDatabase> build();
+  Future<AppDatabase> build();
 }
 
 // ignore: avoid_classes_with_only_static_members
-class $FloorPetDatabase {
+class $FloorAppDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static $PetDatabaseBuilderContract databaseBuilder(String name) =>
-      _$PetDatabaseBuilder(name);
+  static $AppDatabaseBuilderContract databaseBuilder(String name) =>
+      _$AppDatabaseBuilder(name);
 
   /// Creates a database builder for an in memory database.
   /// Information stored in an in memory database disappears when the process is killed.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static $PetDatabaseBuilderContract inMemoryDatabaseBuilder() =>
-      _$PetDatabaseBuilder(null);
+  static $AppDatabaseBuilderContract inMemoryDatabaseBuilder() =>
+      _$AppDatabaseBuilder(null);
 }
 
-class _$PetDatabaseBuilder implements $PetDatabaseBuilderContract {
-  _$PetDatabaseBuilder(this.name);
+class _$AppDatabaseBuilder implements $AppDatabaseBuilderContract {
+  _$AppDatabaseBuilder(this.name);
 
   final String? name;
 
@@ -41,23 +41,23 @@ class _$PetDatabaseBuilder implements $PetDatabaseBuilderContract {
   Callback? _callback;
 
   @override
-  $PetDatabaseBuilderContract addMigrations(List<Migration> migrations) {
+  $AppDatabaseBuilderContract addMigrations(List<Migration> migrations) {
     _migrations.addAll(migrations);
     return this;
   }
 
   @override
-  $PetDatabaseBuilderContract addCallback(Callback callback) {
+  $AppDatabaseBuilderContract addCallback(Callback callback) {
     _callback = callback;
     return this;
   }
 
   @override
-  Future<PetDatabase> build() async {
+  Future<AppDatabase> build() async {
     final path = name != null
         ? await sqfliteDatabaseFactory.getDatabasePath(name!)
         : ':memory:';
-    final database = _$PetDatabase();
+    final database = _$AppDatabase();
     database.database = await database.open(
       path,
       _migrations,
@@ -67,12 +67,12 @@ class _$PetDatabaseBuilder implements $PetDatabaseBuilderContract {
   }
 }
 
-class _$PetDatabase extends PetDatabase {
-  _$PetDatabase([StreamController<String>? listener]) {
+class _$AppDatabase extends AppDatabase {
+  _$AppDatabase([StreamController<String>? listener]) {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
-  PetDAO? _petDAOInstance;
+  VaccineDao? _vaccineDaoInstance;
 
   Future<sqflite.Database> open(
     String path,
@@ -96,7 +96,7 @@ class _$PetDatabase extends PetDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Pet` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `birthday` TEXT NOT NULL, `species` TEXT NOT NULL, `colour` TEXT NOT NULL, `ownerID` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `Vaccine` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `dosage` TEXT NOT NULL, `lotNumber` TEXT NOT NULL, `expiryDate` TEXT NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -105,50 +105,47 @@ class _$PetDatabase extends PetDatabase {
   }
 
   @override
-  PetDAO get petDAO {
-    return _petDAOInstance ??= _$PetDAO(database, changeListener);
+  VaccineDao get vaccineDao {
+    return _vaccineDaoInstance ??= _$VaccineDao(database, changeListener);
   }
 }
 
-class _$PetDAO extends PetDAO {
-  _$PetDAO(
+class _$VaccineDao extends VaccineDao {
+  _$VaccineDao(
     this.database,
     this.changeListener,
   )   : _queryAdapter = QueryAdapter(database),
-        _petInsertionAdapter = InsertionAdapter(
+        _vaccineInsertionAdapter = InsertionAdapter(
             database,
-            'Pet',
-            (Pet item) => <String, Object?>{
+            'Vaccine',
+            (Vaccine item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'birthday': item.birthday,
-                  'species': item.species,
-                  'colour': item.colour,
-                  'ownerID': item.ownerID
+                  'dosage': item.dosage,
+                  'lotNumber': item.lotNumber,
+                  'expiryDate': item.expiryDate
                 }),
-        _petUpdateAdapter = UpdateAdapter(
+        _vaccineUpdateAdapter = UpdateAdapter(
             database,
-            'Pet',
+            'Vaccine',
             ['id'],
-            (Pet item) => <String, Object?>{
+            (Vaccine item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'birthday': item.birthday,
-                  'species': item.species,
-                  'colour': item.colour,
-                  'ownerID': item.ownerID
+                  'dosage': item.dosage,
+                  'lotNumber': item.lotNumber,
+                  'expiryDate': item.expiryDate
                 }),
-        _petDeletionAdapter = DeletionAdapter(
+        _vaccineDeletionAdapter = DeletionAdapter(
             database,
-            'Pet',
+            'Vaccine',
             ['id'],
-            (Pet item) => <String, Object?>{
+            (Vaccine item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
-                  'birthday': item.birthday,
-                  'species': item.species,
-                  'colour': item.colour,
-                  'ownerID': item.ownerID
+                  'dosage': item.dosage,
+                  'lotNumber': item.lotNumber,
+                  'expiryDate': item.expiryDate
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -157,36 +154,35 @@ class _$PetDAO extends PetDAO {
 
   final QueryAdapter _queryAdapter;
 
-  final InsertionAdapter<Pet> _petInsertionAdapter;
+  final InsertionAdapter<Vaccine> _vaccineInsertionAdapter;
 
-  final UpdateAdapter<Pet> _petUpdateAdapter;
+  final UpdateAdapter<Vaccine> _vaccineUpdateAdapter;
 
-  final DeletionAdapter<Pet> _petDeletionAdapter;
+  final DeletionAdapter<Vaccine> _vaccineDeletionAdapter;
 
   @override
-  Future<List<Pet>> getAllPets() async {
-    return _queryAdapter.queryList('SELECT * FROM Pet',
-        mapper: (Map<String, Object?> row) => Pet(
+  Future<List<Vaccine>> findAllVaccines() async {
+    return _queryAdapter.queryList('SELECT * FROM Vaccine',
+        mapper: (Map<String, Object?> row) => Vaccine(
             row['id'] as int,
             row['name'] as String,
-            row['birthday'] as String,
-            row['species'] as String,
-            row['colour'] as String,
-            row['ownerID'] as int));
+            row['dosage'] as String,
+            row['lotNumber'] as String,
+            row['expiryDate'] as String));
   }
 
   @override
-  Future<void> insertPet(Pet p) async {
-    await _petInsertionAdapter.insert(p, OnConflictStrategy.abort);
+  Future<void> insertVaccine(Vaccine vaccine) async {
+    await _vaccineInsertionAdapter.insert(vaccine, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> updatePet(Pet p) async {
-    await _petUpdateAdapter.update(p, OnConflictStrategy.abort);
+  Future<void> updateVaccine(Vaccine vaccine) async {
+    await _vaccineUpdateAdapter.update(vaccine, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> deletePet(Pet p) async {
-    await _petDeletionAdapter.delete(p);
+  Future<void> deleteVaccine(Vaccine vaccine) async {
+    await _vaccineDeletionAdapter.delete(vaccine);
   }
 }

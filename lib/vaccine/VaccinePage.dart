@@ -1,3 +1,17 @@
+/*
+ * AI Usage Disclaimer:
+ *
+ * Artificial Intelligence (AI) tools were used solely to assist in generating
+ * and refining code comments and documentation within this file.
+ *
+ * AI tools were used for the implementation details of using localization for
+ * translation of text within pages. Pattern and implementation details were
+ * followed as was setup by project member.
+ *
+ * All logic, implementation, and functionality were independently developed.
+ * No AI assistance was used in writing the program logic, algorithms, or core features.
+ */
+
 import 'package:flutter/material.dart';
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import '../AppLocalizations.dart';
@@ -5,6 +19,7 @@ import '../main.dart';
 import 'Vaccine.dart';
 import 'VaccineDao.dart';
 import 'database.dart';
+
 
 /// Displays the vaccine management interface, including form entry,
 /// vaccine listing, responsive detail views, and CRUD operations.

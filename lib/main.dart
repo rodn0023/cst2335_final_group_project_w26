@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'AppLocalizations.dart';
-import 'petowner/petOwnerPage.dart';
+import 'petowner/PetOwnerPage.dart';
 import 'pet/PetPage.dart';
 import 'vaccine/VaccinePage.dart';
 import 'veterinarian/VeterinarianPage.dart';
@@ -10,43 +8,13 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  static void setLocale(BuildContext context, Locale newLocale) async {
-    _MyAppState? state = context.findAncestorStateOfType<_MyAppState>();
-    state?.changeLanguage(newLocale);
-  }
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-
-  Locale _locale = Locale('en');
-
-  void changeLanguage(Locale newLocale) {
-    setState(() {
-      _locale = newLocale;
-    });
-  }
-
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      localizationsDelegates: [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [
-        Locale('en'),
-        Locale('hi'),
-        Locale('fr'),
-      ],
-      locale: _locale,
       routes: {
         "/": (context) => MyHomePage(title: "Pet Clinic"),
         "/petOwnerPage": (context) => PetOwnerPage(),
@@ -83,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: .center,
           children: [
             Padding(
               padding: EdgeInsets.all(10),

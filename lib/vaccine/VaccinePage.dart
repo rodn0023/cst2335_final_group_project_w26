@@ -24,6 +24,8 @@ class VaccinePageState extends State<VaccinePage> {
   late AppDatabase database;
   late VaccineDao dao;
 
+  Vaccine? selectedItem = null;
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +57,125 @@ class VaccinePageState extends State<VaccinePage> {
     lotNumberController.dispose();
     expiryDateController.dispose();
     super.dispose();
+  }
+
+  Widget reactiveLayout() {
+    var size = MediaQuery.of(context).size;
+    var height = size.height;
+    var width = size.width;
+
+    if ((width > height) && (width > 720)) {
+      return Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: ListPage(),
+          ),
+          Expanded(
+            flex: 3,
+            child: DetailsPage(),
+          ),
+        ],
+      );
+    } else {
+      if (selectedItem == null) {
+        return ListPage();
+      } else {
+        return DetailsPage();
+      }
+    }
+  }
+
+  Widget DetailsPage() {
+    if (selectedItem != null) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Vaccine Details",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Text(
+                  "Database ID: ${selectedItem!.id}",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Text(
+                  "Name: ${selectedItem!.name}",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Text(
+                  "Dosage: ${selectedItem!.dosage}",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Text(
+                  "Lot Number: ${selectedItem!.lotNumber}",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Text(
+                  "Expiry Date: ${selectedItem!.expiryDate}",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 30),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await dao.deleteVaccine(selectedItem!);
+
+                    setState(() {
+                      vaccineList.remove(selectedItem);
+                      selectedItem = null;
+                    });
+                  },
+                  child: Text("Delete"),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      selectedItem = null;
+                    });
+                  },
+                  child: Text("Close"),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      return Center(
+        child: Text(
+          "Please select a vaccine from the list.",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
   }
 
   Widget ListPage() {
@@ -176,6 +297,17 @@ class VaccinePageState extends State<VaccinePage> {
 
                 return GestureDetector(
 
+                  onTap: () {
+                    setState(() {
+                      selectedItem = item;
+
+                      nameController.text = item.name;
+                      dosageController.text = item.dosage;
+                      lotNumberController.text = item.lotNumber;
+                      expiryDateController.text = item.expiryDate;
+                    });
+                  },
+
                   onLongPress: () {
                     showDialog(
                       context: context,
@@ -192,7 +324,10 @@ class VaccinePageState extends State<VaccinePage> {
                                 await dao.deleteVaccine(item);
 
                                 setState(() {
-                                  vaccineList.removeAt(rowNum);
+                                  vaccineList.remove(item);
+                                  if (selectedItem == item) {
+                                    selectedItem = null;
+                                  }
                                 });
 
                                 Navigator.pop(context);
@@ -252,7 +387,7 @@ class VaccinePageState extends State<VaccinePage> {
       appBar: AppBar(
         title: Text("Vaccine Page"),
       ),
-      body: ListPage(),
+      body: reactiveLayout(),
     );
   }
 }

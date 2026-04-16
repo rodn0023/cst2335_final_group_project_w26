@@ -1,23 +1,20 @@
-//
 import 'package:floor/floor.dart';
 
 /// Represents a pet that is a patient of a veterinary clinic.
-/// This is a Floor database entity.
 @entity
 class Pet {
 
-  /// Static ID counter, must always be greater than the highest ID in the database.
+  /// Counter used to assign a unique ID to each new pet.
   static int ID = 1;
 
-  /// Creates a [Pet] with the given fields.
-  /// Automatically keeps [ID] ahead of the highest existing ID.
+  /// Creates a [Pet] and keeps [ID] ahead of the highest existing database ID.
   Pet(this.id, this.name, this.birthday, this.species, this.colour, this.ownerID) {
-    if (this.id >= ID) {
-      ID = this.id + 1;
+    if (id >= ID) {
+      ID = id + 1;
     }
   }
 
-  /// Primary key, unique identifier for each pet.
+  /// Primary key — unique identifier for each pet.
   @primaryKey
   final int id;
 

@@ -70,9 +70,10 @@ class VeterinarianPageState extends State<VeterinarianPage> {
     addressController = TextEditingController();
     universityController = TextEditingController();
 
+    // requirement 6a: initializing EncryptedSharedPreferences for use
     prefs = EncryptedSharedPreferences();
 
-    prefs.getString("name").then((savedName) {
+    prefs.getString("vet_name").then((savedName) {
       nameController.text = savedName;
     });
 
@@ -112,6 +113,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
           ElevatedButton(
             child: Text(AppLocalizations.of(context)!.translate('VetNo')!),
             onPressed: () {
+              prefs.clear();
               Navigator.of(context).pop();
             },
           ),
@@ -165,6 +167,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
     var height = size.height;
     var width = size.width;
 
+    // requirement 4c: details beside list view on desktop
     if ((width > height) && (width > 720)) {
       return Row(
         children: [
@@ -179,6 +182,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
         ],
       );
     } else {
+      // requirement 4d: full mobile screen for details or list view
       if (selectedItem == null) {
         return ListPage();
       } else {
@@ -201,12 +205,15 @@ class VeterinarianPageState extends State<VeterinarianPage> {
   Widget addButton() {
     return Padding(
       padding: EdgeInsets.all(10),
+
+      // requirement 2b: add button which insert into database / list
       child: ElevatedButton(
         onPressed: () async {
           if (nameController.text.isEmpty ||
               birthdayController.text.isEmpty ||
               addressController.text.isEmpty ||
               universityController.text.isEmpty) {
+            // requirement 5a: snackbar message for failed submission
             var snackBar = SnackBar(
               content: Text(
                   AppLocalizations.of(context)!.translate('VetFormFail')!
@@ -217,7 +224,8 @@ class VeterinarianPageState extends State<VeterinarianPage> {
             ).showSnackBar(snackBar);
           } else {
 
-            prefs.setString("name", nameController.text);
+            // requirement 6b: saving text field info for EncryptedSharedPreferences
+            prefs.setString("vet_name", nameController.text);
             prefs.setString("birthday", birthdayController.text);
             prefs.setString("address", addressController.text);
             prefs.setString("university", universityController.text);
@@ -230,6 +238,8 @@ class VeterinarianPageState extends State<VeterinarianPage> {
               addressController.text,
               universityController.text,
             );
+
+            // requirement 3: database usage for list
             await dao.insertVeterinarian(veterinarian);
             setState(() {
               veterinarianList.add(veterinarian);
@@ -239,6 +249,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
               universityController.clear();
             });
 
+            // requirement 5b: AlertDialog popup for copying fields
             addAlert();
           }
         },
@@ -336,6 +347,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
           if (width > height && width > 720) Row(
                   children: [
                     Expanded(
+                      // requirement 2a: Text Fields for saving info before insert
                       child: TextField(
                         controller: nameController,
                         decoration: InputDecoration(
@@ -415,6 +427,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
 
           if (veterinarianList.isEmpty) Text(AppLocalizations.of(context)!.translate('VetNoItems')!),
           Expanded(
+            // requirement 1: List View with inserted items
             child: ListView.builder(
               itemCount: veterinarianList.length,
               itemBuilder: (context, rowNum) {
@@ -430,7 +443,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                         ),
                       ),
                       Text(
-                        "${AppLocalizations.of(context)!.translate('VetDetailsBirthdate')!} ${veterinarianList[rowNum].birthday}",
+                        "${AppLocalizations.of(context)!.translate('VetDetailsBirthdate')!}${veterinarianList[rowNum].birthday}",
                         style: TextStyle(fontSize: 20.0),
                       ),
                       Text(
@@ -446,6 +459,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
                   ),
                   onTap: () {
                     setState(() {
+                      // requirement 4a: selecting item from list
                       selectedItem = veterinarianList[rowNum];
 
                       nameController.text = selectedItem!.name;
@@ -471,6 +485,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
           padding: EdgeInsets.all(10),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            // requirement 4b: details from selected item
             children: [
               Text(
                 "${AppLocalizations.of(context)!.translate('VetDetailsName')!}${selectedItem!.name}",
@@ -642,12 +657,14 @@ class VeterinarianPageState extends State<VeterinarianPage> {
             padding: EdgeInsets.all(10),
             child: OutlinedButton(
               onPressed: () {
+                // requirement 8: localization with english and french
                 MyApp.setLocale(context, Locale("fr"));
               },
               child: Text(AppLocalizations.of(context)!.translate('VetFrench')!, style: TextStyle(color: Color(0xFF06402B))),
             ),
           ),
 
+          // requirement 7: action bar with help alert dialog
           Padding(
             padding: EdgeInsets.all(10),
             child: OutlinedButton(

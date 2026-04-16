@@ -114,13 +114,13 @@ class _PetOwnerPageState extends State<PetOwnerPage> {
 
           // Switch to English
           TextButton(
-            onPressed: () => MyApp.setLocale(context, const Locale("en")),
+            onPressed: () => MyApp.setLocale(context, const Locale("en", "CA")),
             child: Text(lang.translate('POEnglish')!),
           ),
 
           //Switch to Hindi
           TextButton(
-            onPressed: () => MyApp.setLocale(context, const Locale("hi")),
+            onPressed: () => MyApp.setLocale(context, const Locale("hi", "IN")),
             child: Text(lang.translate('POHindi')!),
           ),
 

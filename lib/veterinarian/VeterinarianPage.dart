@@ -60,7 +60,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
     super.initState();
 
     Future.delayed(Duration.zero, () {
-      MyApp.setLocale(context, Locale("en"));
+      MyApp.setLocale(context, Locale("en", "CA"));
     });
 
     loadDatabase();
@@ -658,7 +658,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
             child: OutlinedButton(
               onPressed: () {
                 // requirement 8: localization with english and french
-                MyApp.setLocale(context, Locale("fr"));
+                MyApp.setLocale(context, Locale("fr", "CA"));
               },
               child: Text(AppLocalizations.of(context)!.translate('VetFrench')!, style: TextStyle(color: Color(0xFF06402B))),
             ),

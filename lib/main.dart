@@ -25,7 +25,7 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp>{
-  var locale = Locale("en", "ca");
+  var locale = Locale("en", "CA");
 
   void changeLanguage(Locale newLocale) {
     setState(() {
@@ -47,7 +47,8 @@ class MyAppState extends State<MyApp>{
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
 
       locale: locale,

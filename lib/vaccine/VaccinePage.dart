@@ -44,6 +44,8 @@ class VaccinePageState extends State<VaccinePage> {
   /// Controller for the expiry date field.
   late TextEditingController expiryDateController;
 
+  late EncryptedSharePreferneces prefs;
+
   /// In-memory list of vaccine records loaded from the database.
   List<Vaccine> vaccineList = [];
 
@@ -87,7 +89,6 @@ class VaccinePageState extends State<VaccinePage> {
   /// Loads previously saved vaccine entry from encrypted storage
   /// and populates the form fields if data exists.
   void loadSavedData() async {
-    var t = AppLocalizations.of(context)!;
 
     String name = await prefs.getString("name");
     String dosage = await prefs.getString("dosage");
@@ -102,6 +103,7 @@ class VaccinePageState extends State<VaccinePage> {
 
       /// Displays feedback that stored data has been loaded.
       Future.delayed(Duration.zero, () {
+        var t = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(t.translate("vaccine_snackbar_loaded")!)),
         );
@@ -316,6 +318,11 @@ class VaccinePageState extends State<VaccinePage> {
                   );
 
                   await dao.insertVaccine(newVaccine);
+
+                  await prefs.setString("name", nameController.text);
+                  await prefs.setString("dosage", dosageController.text);
+                  await prefs.setString("lot", lotNumberController.text);
+                  await prefs.setString("expiry", expiryDateController.text);
 
                   /// Prompt user to save entry for reuse.
                   showSaveDialog();

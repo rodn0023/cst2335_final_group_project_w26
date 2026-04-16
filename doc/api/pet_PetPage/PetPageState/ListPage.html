@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ListPage method from the PetPageState class, for the Dart programming language.">
+  <title>ListPage method - PetPageState class - PetPage library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cst2335_final_group_project_w26</a></li>
+    <li><a href="../../pet_PetPage/">pet\PetPage.dart</a></li>
+    <li><a href="../../pet_PetPage/PetPageState-class.html">PetPageState</a></li>
+    <li class="self-crumb">ListPage method</li>
+  </ol>
+  <div class="self-name">ListPage</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="pet_PetPage&#47;PetPageState-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">ListPage</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">ListPage</span>(<wbr>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Shows the input form at the top and the scrollable pet list below.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Widget ListPage() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    mainAxisAlignment: MainAxisAlignment.start,
+    children: [
+
+      Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+
+            Text(translate(context, &#39;pet_pleaseEnter&#39;)),
+            const SizedBox(height: 6),
+
+            &#47;&#47; Name field
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(
+                hintText: translate(context, &#39;pet_nameHint&#39;),
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 6),
+
+            &#47;&#47; Birthday field
+            TextField(
+              controller: birthdayController,
+              decoration: InputDecoration(
+                hintText: translate(context, &#39;pet_birthdayHint&#39;),
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 6),
+
+            &#47;&#47; Species field
+            TextField(
+              controller: speciesController,
+              decoration: InputDecoration(
+                hintText: translate(context, &#39;pet_speciesHint&#39;),
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 6),
+
+            &#47;&#47; Colour field
+            TextField(
+              controller: colourController,
+              decoration: InputDecoration(
+                hintText: translate(context, &#39;pet_colourHint&#39;),
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 6),
+
+            &#47;&#47; Owner ID — stored as String in prefs, parsed to int when creating Pet
+            TextField(
+              controller: ownerIDController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                hintText: translate(context, &#39;pet_ownerIDHint&#39;),
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            &#47;&#47; Add button — only visible when no pet is selected
+            if (selectedItem == null)
+              ElevatedButton(
+                onPressed: () async {
+                  if (nameController.text.isEmpty ||
+                      birthdayController.text.isEmpty ||
+                      speciesController.text.isEmpty ||
+                      colourController.text.isEmpty ||
+                      ownerIDController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(translate(context, &#39;pet_fillFields&#39;))),
+                    );
+                  } else {
+                    saveToPrefs();
+                    final newPet = Pet(
+                      Pet.ID++,
+                      nameController.text,
+                      birthdayController.text,
+                      speciesController.text,
+                      colourController.text,
+                      int.tryParse(ownerIDController.text) ?? 0,
+                    );
+                    await dao.insertPet(newPet);
+                    setState(() { petList.add(newPet); });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(
+                          &#39;${newPet.name} ${translate(context, &#39;pet_snackAdded&#39;)}&#39;)),
+                    );
+                    copyAlert();
+                  }
+                },
+                child: Text(translate(context, &#39;pet_addButton&#39;)),
+              ),
+
+            &#47;&#47; Update and Delete — only visible when a pet is selected
+            if (selectedItem != null)
+              Row(children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (nameController.text.isEmpty ||
+                          birthdayController.text.isEmpty ||
+                          speciesController.text.isEmpty ||
+                          colourController.text.isEmpty ||
+                          ownerIDController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(
+                              translate(context, &#39;pet_fillFieldsUpdate&#39;))),
+                        );
+                      } else {
+                        selectedItem!.name     = nameController.text;
+                        selectedItem!.birthday = birthdayController.text;
+                        selectedItem!.species  = speciesController.text;
+                        selectedItem!.colour   = colourController.text;
+                        selectedItem!.ownerID  =
+                            int.tryParse(ownerIDController.text) ?? 0;
+                        await dao.updatePet(selectedItem!);
+                        await loadDatabase();
+                        setState(() {
+                          selectedItem = null;
+                          clearForm();
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(
+                              translate(context, &#39;pet_snackUpdated&#39;))),
+                        );
+                      }
+                    },
+                    child: Text(translate(context, &#39;pet_updateButton&#39;)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    onPressed: deleteAlert,
+                    child: Text(
+                      translate(context, &#39;pet_deleteButton&#39;),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ]),
+          ],
+        ),
+      ),
+
+      &#47;&#47; Scrollable list — tap to select, long press to delete
+      Expanded(
+        child: ListView.builder(
+          itemCount: petList.length,
+          itemBuilder: (context, rowNum) {
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  selectedItem            = petList[rowNum];
+                  nameController.text     = selectedItem!.name;
+                  birthdayController.text = selectedItem!.birthday;
+                  speciesController.text  = selectedItem!.species;
+                  colourController.text   = selectedItem!.colour;
+                  ownerIDController.text  = selectedItem!.ownerID.toString();
+                });
+              },
+              onLongPress: () {
+                setState(() { selectedItem = petList[rowNum]; });
+                deleteAlert();
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    &#39;${rowNum + 1}. ${petList[rowNum].name}&#39;,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  Text(&#39;${translate(context, &#39;pet_birthday&#39;)}: ${petList[rowNum].birthday}&#39;),
+                  Text(&#39;${translate(context, &#39;pet_species&#39;)}: ${petList[rowNum].species}&#39;),
+                  Text(&#39;${translate(context, &#39;pet_colour&#39;)}: ${petList[rowNum].colour}&#39;),
+                  Text(&#39;${translate(context, &#39;pet_ownerID&#39;)}: ${petList[rowNum].ownerID}&#39;),
+                  const Text(&#39;&#39;),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    ],
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cst2335_final_group_project_w26</a></li>
+    <li><a href="../../pet_PetPage/">PetPage</a></li>
+    <li><a href="../../pet_PetPage/PetPageState-class.html">PetPageState</a></li>
+    <li class="self-crumb">ListPage method</li>
+</ol>
+
+    <h5>PetPageState class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cst2335_final_group_project_w26
+      1.0.0+1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

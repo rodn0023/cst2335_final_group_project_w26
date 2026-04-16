@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ListPage method from the VeterinarianPageState class, for the Dart programming language.">
+  <title>ListPage method - VeterinarianPageState class - VeterinarianPage library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">cst2335_final_group_project_w26</a></li>
+    <li><a href="../../veterinarian_VeterinarianPage/">veterinarian\VeterinarianPage.dart</a></li>
+    <li><a href="../../veterinarian_VeterinarianPage/VeterinarianPageState-class.html">VeterinarianPageState</a></li>
+    <li class="self-crumb">ListPage method</li>
+  </ol>
+  <div class="self-name">ListPage</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="veterinarian_VeterinarianPage&#47;VeterinarianPageState-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">ListPage</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">ListPage</span>(<wbr>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Builds the main input form and veterinarian list view.</p>
+<p>Adapts layout based on screen size and orientation.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Widget ListPage() {
+  var size = MediaQuery.of(context).size;
+  var height = size.height;
+  var width = size.width;
+
+  return Padding(
+    padding: EdgeInsets.all(10),
+    child: Column(
+      children: [
+        Text(AppLocalizations.of(context)!.translate(&#39;VetFormMessage&#39;)!),
+        if (width &gt; height &amp;&amp; width &gt; 720) Row(
+                children: [
+                  Expanded(
+                    &#47;&#47; requirement 2a: Text Fields for saving info before insert
+                    child: TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.translate(&#39;VetName&#39;)!,
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: birthdayController,
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.translate(&#39;VetBirthday&#39;)!,
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: addressController,
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.translate(&#39;VetAddress&#39;)!,
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextField(
+                      controller: universityController,
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.translate(&#39;VetUniversity&#39;)!,
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  if (selectedItem == null)
+                    addButton(),
+                  if (selectedItem != null)
+                    updateAndDeleteButtons()
+                ],
+              ) else Column(
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.translate(&#39;VetName&#39;)!,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  TextField(
+                    controller: birthdayController,
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.translate(&#39;VetBirthday&#39;)!,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  TextField(
+                    controller: addressController,
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.translate(&#39;VetAddress&#39;)!,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  TextField(
+                    controller: universityController,
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.translate(&#39;VetUniversity&#39;)!,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  if (selectedItem == null)
+                    addButton(),
+                  if (selectedItem != null)
+                    updateAndDeleteButtons()
+                ],
+              ),
+
+        if (veterinarianList.isEmpty) Text(AppLocalizations.of(context)!.translate(&#39;VetNoItems&#39;)!),
+        Expanded(
+          &#47;&#47; requirement 1: List View with inserted items
+          child: ListView.builder(
+            itemCount: veterinarianList.length,
+            itemBuilder: (context, rowNum) {
+              return GestureDetector(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      &quot;${rowNum + 1}. ${veterinarianList[rowNum].name}&quot;,
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      &quot;${AppLocalizations.of(context)!.translate(&#39;VetDetailsBirthdate&#39;)!}${veterinarianList[rowNum].birthday}&quot;,
+                      style: TextStyle(fontSize: 20.0),
+                    ),
+                    Text(
+                      &quot;${AppLocalizations.of(context)!.translate(&#39;VetAddress&#39;)!}: ${veterinarianList[rowNum].address}&quot;,
+                      style: TextStyle(fontSize: 20.0),
+                    ),
+                    Text(
+                      &quot;${AppLocalizations.of(context)!.translate(&#39;VetUniversity&#39;)!}: ${veterinarianList[rowNum].university}&quot;,
+                      style: TextStyle(fontSize: 20.0),
+                    ),
+                    Text(&quot;&quot;),
+                  ],
+                ),
+                onTap: () {
+                  setState(() {
+                    &#47;&#47; requirement 4a: selecting item from list
+                    selectedItem = veterinarianList[rowNum];
+
+                    nameController.text = selectedItem!.name;
+                    birthdayController.text = selectedItem!.birthday;
+                    addressController.text = selectedItem!.address;
+                    universityController.text = selectedItem!.university;
+                  });
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    ),
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">cst2335_final_group_project_w26</a></li>
+    <li><a href="../../veterinarian_VeterinarianPage/">VeterinarianPage</a></li>
+    <li><a href="../../veterinarian_VeterinarianPage/VeterinarianPageState-class.html">VeterinarianPageState</a></li>
+    <li class="self-crumb">ListPage method</li>
+</ol>
+
+    <h5>VeterinarianPageState class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    cst2335_final_group_project_w26
+      1.0.0+1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

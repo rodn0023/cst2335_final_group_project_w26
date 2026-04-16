@@ -43,6 +43,23 @@ class _PetOwnerPageState extends State<PetOwnerPage> {
     // initialize shared prefs
     prefs = EncryptedSharedPreferences();
 
+    // load previously saved values into fields when page starts
+    prefs.getString("po_firstName").then((savedValue) {
+      if (savedValue.isNotEmpty) _firstName.text = savedValue;
+    });
+    prefs.getString("po_lastName").then((savedValue) {
+      if (savedValue.isNotEmpty) _lastName.text = savedValue;
+    });
+    prefs.getString("po_address").then((savedValue) {
+      if (savedValue.isNotEmpty) _address.text = savedValue;
+    });
+    prefs.getString("po_dob").then((savedValue) {
+      if (savedValue.isNotEmpty) _dob.text = savedValue;
+    });
+    prefs.getString("po_insurance").then((savedValue) {
+      if (savedValue.isNotEmpty) _insurance.text = savedValue;
+    });
+
     // load data from database
     loadData();
   }
@@ -124,15 +141,12 @@ class _PetOwnerPageState extends State<PetOwnerPage> {
   Widget reactiveLayout() {
     var size = MediaQuery.of(context).size;
 
-
     if ((size.width > size.height) && (size.width > 720)) {
       return Row(children: [
         Expanded(flex: 2, child: listPage()),
         Expanded(flex: 3, child: detailsPage()),
       ]);
     } else {
-
-
       return selectedItem == null ? listPage() : detailsPage();
     }
   }
@@ -190,8 +204,6 @@ class _PetOwnerPageState extends State<PetOwnerPage> {
         ),
       );
     } else {
-
-
       return Center(
         child: Text(lang.translate('POSelection')!),
       );
@@ -295,7 +307,6 @@ class _PetOwnerPageState extends State<PetOwnerPage> {
                     //insert into database
                     await dao.insertPetOwner(newOwner);
 
-
                     setState(() {
                       owners.add(newOwner);
                     });
@@ -331,7 +342,6 @@ class _PetOwnerPageState extends State<PetOwnerPage> {
               itemBuilder: (context, rowNum) {
 
                 return GestureDetector(
-
 
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,11 +437,11 @@ class _PetOwnerPageState extends State<PetOwnerPage> {
           // yes = load previous fields
           TextButton(
             onPressed: () async {
-              _firstName.text  = await prefs.getString("po_firstName") ?? "";
-              _lastName.text   = await prefs.getString("po_lastName") ?? "";
-              _address.text    = await prefs.getString("po_address") ?? "";
-              _dob.text        = await prefs.getString("po_dob") ?? "";
-              _insurance.text  = await prefs.getString("po_insurance") ?? "";
+              _firstName.text  = await prefs.getString("po_firstName");
+              _lastName.text   = await prefs.getString("po_lastName");
+              _address.text    = await prefs.getString("po_address");
+              _dob.text        = await prefs.getString("po_dob");
+              _insurance.text  = await prefs.getString("po_insurance");
               Navigator.pop(context);
             },
             child: Text(lang.translate('POYes')!),

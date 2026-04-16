@@ -87,7 +87,6 @@ class VaccinePageState extends State<VaccinePage> {
   /// Loads previously saved vaccine entry from encrypted storage
   /// and populates the form fields if data exists.
   void loadSavedData() async {
-    var t = AppLocalizations.of(context)!;
 
     String name = await prefs.getString("name");
     String dosage = await prefs.getString("dosage");
@@ -102,6 +101,7 @@ class VaccinePageState extends State<VaccinePage> {
 
       /// Displays feedback that stored data has been loaded.
       Future.delayed(Duration.zero, () {
+        var t = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(t.translate("vaccine_snackbar_loaded")!)),
         );
@@ -317,6 +317,11 @@ class VaccinePageState extends State<VaccinePage> {
 
                   await dao.insertVaccine(newVaccine);
 
+                  await prefs.setString("name", nameController.text);
+                  await prefs.setString("dosage", dosageController.text);
+                  await prefs.setString("lot", lotNumberController.text);
+                  await prefs.setString("expiry", expiryDateController.text);
+
                   /// Prompt user to save entry for reuse.
                   showSaveDialog();
 
@@ -385,7 +390,13 @@ class VaccinePageState extends State<VaccinePage> {
           IconButton(
             icon: Icon(Icons.language),
             onPressed: () {
-              MyApp.setLocale(context, Locale("es", "ES"));
+              Locale currentLocale = Localizations.localeOf(context);
+
+              if (currentLocale.languageCode == "en") {
+                MyApp.setLocale(context, Locale("es", "ES"));
+              } else {
+                MyApp.setLocale(context, Locale("en", "CA"));
+              }
             },
           ),
           IconButton(

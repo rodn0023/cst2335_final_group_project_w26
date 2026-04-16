@@ -44,9 +44,6 @@ class VaccinePageState extends State<VaccinePage> {
   /// Controller for the expiry date field.
   late TextEditingController expiryDateController;
 
-  /// Session storage hidden preference.
-  late EncryptedSharedPreferences prefs;
-
   /// In-memory list of vaccine records loaded from the database.
   List<Vaccine> vaccineList = [];
 

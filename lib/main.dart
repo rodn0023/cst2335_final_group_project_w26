@@ -41,6 +41,7 @@ class MyAppState extends State<MyApp>{
         Locale('fr', 'CA'),
         Locale('gu', 'IN'),
         Locale('es', 'ES'),
+        Locale('hi', 'IN'),
       ],
 
       localizationsDelegates: const [
@@ -48,7 +49,7 @@ class MyAppState extends State<MyApp>{
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate
       ],
-      
+
       locale: locale,
 
       routes: {

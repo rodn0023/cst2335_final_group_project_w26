@@ -120,7 +120,7 @@ class VeterinarianPageState extends State<VeterinarianPage> {
           ElevatedButton(
             child: Text(AppLocalizations.of(context)!.translate('VetYes')!),
             onPressed: () async {
-              final savedName = await prefs.getString("name");
+              final savedName = await prefs.getString("vet_name");
               final savedBirthday = await prefs.getString("birthday");
               final savedAddress = await prefs.getString("address");
               final savedUniversity = await prefs.getString("university");

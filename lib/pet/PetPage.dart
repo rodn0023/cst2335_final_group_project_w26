@@ -17,6 +17,9 @@ class PetPage extends StatefulWidget {
 }
 
 /// State class for [PetPage].
+///
+/// Manages the pet list, form input controllers, database access,
+/// and encrypted local storage for the Pet section of the app.
 class PetPageState extends State<PetPage> {
 
   /// The list of pets loaded from the database.
@@ -25,10 +28,15 @@ class PetPageState extends State<PetPage> {
   /// The currently selected pet from the list (null if none selected).
   Pet? selectedItem;
 
-  /// Data access object for database operations.
+  /// Data access object for performing database operations on the Pet table.
   late PetDAO dao;
 
-  /// Encrypted shared preferences for saving last-entered pet data.
+  /// Encrypted shared preferences object used to save and retrieve pet form data.
+  ///
+  /// As shown in the lab slides, the [EncryptedSharedPreferences] class encrypts
+  /// all stored strings, satisfying data protection requirements (GDPR, PIPEDA).
+  /// Only String values are supported, as per the prof's lab notes.
+  /// Created with: EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
   late EncryptedSharedPreferences prefs;
 
   /// Controller for the pet name input field.
@@ -47,7 +55,9 @@ class PetPageState extends State<PetPage> {
   late TextEditingController ownerIDController;
 
   /// Loads the Floor database and fetches all existing pets.
-  /// Also initialises [Pet.ID] from the highest existing id so inserts never conflict on restart.
+  ///
+  /// Also initialises [Pet.ID] from the highest existing id so inserts
+  /// never conflict on app restart.
   Future<void> loadDatabase() async {
     final database = await $FloorPetDatabase
         .databaseBuilder('PetFile.db')
@@ -63,18 +73,53 @@ class PetPageState extends State<PetPage> {
     });
   }
 
+  /// Initialises all [TextEditingController]s, the [EncryptedSharedPreferences]
+  /// instance, and loads any previously saved values into the form fields.
+  ///
+  /// Following the prof's lab pattern:
+  /// - Controllers are initialised here (promise fulfilled after late declaration).
+  /// - Saved prefs are read here so the fields are pre-filled on app restart.
+  /// - The database is loaded so the list is populated on start.
   @override
   void initState() {
     super.initState();
+
+    // Initialise all controllers — fulfilling the late promise
     nameController     = TextEditingController();
     birthdayController = TextEditingController();
     speciesController  = TextEditingController();
     colourController   = TextEditingController();
     ownerIDController  = TextEditingController();
+
+    // Create the EncryptedSharedPreferences object (lab slide pattern)
     prefs = EncryptedSharedPreferences();
+
+    // Load previously saved values on app restart, following the prof's pattern:
+    // "This is where you should be reading the values that were saved to disk"
+    prefs.getString('pet_name').then((savedName) {
+      if (savedName.isNotEmpty) nameController.text = savedName;
+    });
+    prefs.getString('pet_birthday').then((savedBirthday) {
+      if (savedBirthday.isNotEmpty) birthdayController.text = savedBirthday;
+    });
+    prefs.getString('pet_species').then((savedSpecies) {
+      if (savedSpecies.isNotEmpty) speciesController.text = savedSpecies;
+    });
+    prefs.getString('pet_colour').then((savedColour) {
+      if (savedColour.isNotEmpty) colourController.text = savedColour;
+    });
+    prefs.getString('pet_ownerID').then((savedOwnerID) {
+      if (savedOwnerID.isNotEmpty) ownerIDController.text = savedOwnerID;
+    });
+
+    // Load the database and populate the pet list
     loadDatabase();
   }
 
+  /// Frees all [TextEditingController] resources when the widget is removed.
+  ///
+  /// Following the prof's lab pattern: always dispose controllers in dispose()
+  /// to prevent memory leaks.
   @override
   void dispose() {
     nameController.dispose();
@@ -86,6 +131,10 @@ class PetPageState extends State<PetPage> {
   }
 
   /// Saves all current form field values to [EncryptedSharedPreferences].
+  ///
+  /// Uses [EncryptedSharedPreferences.setString] as shown in the prof's lab:
+  /// the first parameter is the key (variable name), the second is the value.
+  /// Only String data is stored, as [EncryptedSharedPreferences] only supports Strings.
   void saveToPrefs() {
     prefs.setString('pet_name',     nameController.text);
     prefs.setString('pet_birthday', birthdayController.text);
@@ -94,7 +143,11 @@ class PetPageState extends State<PetPage> {
     prefs.setString('pet_ownerID',  ownerIDController.text);
   }
 
-  /// Loads previously saved form values from [EncryptedSharedPreferences].
+  /// Loads previously saved pet form values from [EncryptedSharedPreferences]
+  /// and populates the text fields.
+  ///
+  /// Uses [EncryptedSharedPreferences.getString] with the same keys used in [saveToPrefs].
+  /// Checks [String.isNotEmpty] before assigning, since a missing key returns empty string.
   Future<void> loadFromPrefs() async {
     final n = await prefs.getString('pet_name');
     final b = await prefs.getString('pet_birthday');
@@ -124,8 +177,15 @@ class PetPageState extends State<PetPage> {
     return AppLocalizations.of(context)?.translate(key) ?? key;
   }
 
-  /// Shows an [AlertDialog] asking if the user wants to copy
-  /// the previous pet's data from [EncryptedSharedPreferences].
+  /// Shows an [AlertDialog] asking if the user wants to copy the previous pet's
+  /// data from [EncryptedSharedPreferences] into the form fields.
+  ///
+  /// This follows the prof's lab requirement:
+  /// "When a user adds a new pet, the user should have a choice to copy the
+  /// fields from the previous pet or start with a blank page."
+  ///
+  /// - Pressing "Yes" calls [loadFromPrefs] to refill the fields.
+  /// - Pressing "No" calls [clearForm] to start blank.
   void copyAlert() {
     showDialog(
       context: context,
@@ -137,6 +197,7 @@ class PetPageState extends State<PetPage> {
             child: Text(translate(context, 'pet_yesButton')),
             onPressed: () async {
               Navigator.of(context).pop();
+              // Load saved prefs back into the form fields
               await loadFromPrefs();
             },
           ),
@@ -154,6 +215,10 @@ class PetPageState extends State<PetPage> {
 
   /// Shows an [AlertDialog] asking the user to confirm deletion
   /// of the currently selected pet.
+  ///
+  /// - Pressing "Yes" deletes the pet from the database and removes it from [petList].
+  /// - Pressing "Cancel" closes the dialog with no changes.
+  /// - A [SnackBar] is shown after successful deletion.
   void deleteAlert() {
     showDialog(
       context: context,
@@ -186,6 +251,9 @@ class PetPageState extends State<PetPage> {
   }
 
   /// Shows an [AlertDialog] with instructions on how to use the Pet page.
+  ///
+  /// This satisfies Requirement 7: each activity must have an ActionBar
+  /// with ActionItems that display an AlertDialog with usage instructions.
   void helpAlert() {
     showDialog(
       context: context,
@@ -205,11 +273,11 @@ class PetPageState extends State<PetPage> {
   /// Decides the layout based on screen size — following the prof's lab pattern.
   ///
   /// Wide screen (tablet/desktop, landscape > 720 px):
-  ///   [ListPage] on the left (40%), [DetailsPage] on the right (60%).
+  ///   [ListPage] on the left (flex 2), [DetailsPage] on the right (flex 3).
   ///
   /// Narrow screen (phone / portrait):
   ///   Show [ListPage] when nothing is selected,
-  ///   show [DetailsPage] when an item is selected (full screen).
+  ///   show [DetailsPage] full screen when an item is selected.
   Widget reactiveLayout() {
     var size   = MediaQuery.of(context).size;
     var height = size.height;
@@ -232,14 +300,20 @@ class PetPageState extends State<PetPage> {
   }
 
   /// The list page — form fields stacked vertically + scrollable pet list below.
+  ///
   /// Based directly on the prof's [ListPage] function pattern from the lab slides.
+  /// Fields use [hintText] so the placeholder is visible before typing
+  /// and disappears once the user starts typing.
+  ///
+  /// The Add button is shown when [selectedItem] is null.
+  /// Update and Delete buttons are shown when a pet is selected.
   Widget ListPage() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
 
-        // Form section — vertical fields stacked, hintText shown before typing
+        // Form section — vertical fields stacked with hintText
         Padding(
           padding: const EdgeInsets.all(8),
           child: Column(
@@ -288,7 +362,7 @@ class PetPageState extends State<PetPage> {
               ),
               const SizedBox(height: 6),
 
-              // Owner ID field
+              // Owner ID field — stored as String in prefs, parsed to int for the Pet object
               TextField(
                 controller: ownerIDController,
                 keyboardType: TextInputType.number,
@@ -303,6 +377,7 @@ class PetPageState extends State<PetPage> {
               if (selectedItem == null)
                 ElevatedButton(
                   onPressed: () async {
+                    // Validate all fields have values before inserting
                     if (nameController.text.isEmpty ||
                         birthdayController.text.isEmpty ||
                         speciesController.text.isEmpty ||
@@ -312,7 +387,10 @@ class PetPageState extends State<PetPage> {
                         SnackBar(content: Text(translate(context, 'pet_fillFields'))),
                       );
                     } else {
+                      // Save to EncryptedSharedPreferences before inserting
+                      // (lab pattern: save when button is pressed)
                       saveToPrefs();
+
                       final newPet = Pet(
                         Pet.ID++,
                         nameController.text,
@@ -327,6 +405,7 @@ class PetPageState extends State<PetPage> {
                         SnackBar(content: Text(
                             '${newPet.name} ${translate(context, 'pet_snackAdded')}')),
                       );
+                      // Ask if user wants to copy fields for next entry
                       copyAlert();
                     }
                   },
@@ -349,6 +428,7 @@ class PetPageState extends State<PetPage> {
                                 translate(context, 'pet_fillFieldsUpdate'))),
                           );
                         } else {
+                          // Update the selected pet's fields with the form values
                           selectedItem!.name     = nameController.text;
                           selectedItem!.birthday = birthdayController.text;
                           selectedItem!.species  = speciesController.text;
@@ -387,8 +467,9 @@ class PetPageState extends State<PetPage> {
           ),
         ),
 
-        // Scrollable pet list — plain text rows, no cards or boxes
-        // Follows the prof's ListView.builder pattern from the lab slides
+        // Scrollable pet list — plain text rows, no cards or boxes.
+        // Follows the prof's ListView.builder pattern from the lab slides.
+        // onTap loads the item into the form; onLongPress triggers delete.
         Expanded(
           child: ListView.builder(
             itemCount: petList.length,
@@ -433,7 +514,11 @@ class PetPageState extends State<PetPage> {
 
   /// The details page — shown on the right (tablet) or full screen (phone)
   /// when a pet is selected. Based on the prof's [DetailsPage] pattern.
-  /// Shows pet details as plain centered text, then Update / Delete / Close buttons.
+  ///
+  /// Displays pet details as plain centered text, then three action buttons:
+  /// - Update: saves the pre-filled form fields back to the database.
+  /// - Delete: shows [deleteAlert] to confirm removal.
+  /// - Close: deselects the item and returns to [ListPage].
   Widget DetailsPage() {
     if (selectedItem != null) {
       return Center(
@@ -478,7 +563,7 @@ class PetPageState extends State<PetPage> {
 
               const SizedBox(height: 48),
 
-              // Update button
+              // Update button — saves form values to DB
               SizedBox(
                 width: 200,
                 child: OutlinedButton(
@@ -514,7 +599,7 @@ class PetPageState extends State<PetPage> {
 
               const SizedBox(height: 12),
 
-              // Delete button (red)
+              // Delete button (red) — triggers [deleteAlert]
               SizedBox(
                 width: 200,
                 child: ElevatedButton(
@@ -529,7 +614,7 @@ class PetPageState extends State<PetPage> {
 
               const SizedBox(height: 12),
 
-              // Close button — goes back to list
+              // Close button — deselects item and returns to [ListPage]
               SizedBox(
                 width: 200,
                 child: OutlinedButton(
@@ -549,6 +634,7 @@ class PetPageState extends State<PetPage> {
         ),
       );
     } else {
+      // Shown on tablet when no pet is selected yet
       return Center(
         child: Text(
           translate(context, 'pet_selectPrompt'),
@@ -558,13 +644,18 @@ class PetPageState extends State<PetPage> {
     }
   }
 
+  /// Builds the main [Scaffold] with an [AppBar] containing:
+  /// - Language switcher buttons (English / Gujarati).
+  /// - A Help [IconButton] that shows [helpAlert] (Requirement 7).
+  ///
+  /// The body uses [reactiveLayout] to adapt to screen size.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(translate(context, 'pet_pageTitle')),
         actions: [
-          // Language switcher buttons
+          // English language button
           Padding(
             padding: const EdgeInsets.all(5),
             child: OutlinedButton(
@@ -573,6 +664,7 @@ class PetPageState extends State<PetPage> {
               child: const Text('English'),
             ),
           ),
+          // Gujarati language button
           Padding(
             padding: const EdgeInsets.all(5),
             child: OutlinedButton(
@@ -581,7 +673,7 @@ class PetPageState extends State<PetPage> {
               child: const Text('ગુજરાતી'),
             ),
           ),
-          // Help ActionItem (Req 7)
+          // Help ActionItem in the AppBar (Requirement 7)
           IconButton(
             icon: const Icon(Icons.help_outline),
             tooltip: 'Help',

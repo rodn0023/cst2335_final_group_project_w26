@@ -385,7 +385,7 @@ class VaccinePageState extends State<VaccinePage> {
           IconButton(
             icon: Icon(Icons.language),
             onPressed: () {
-              Locale currentLocale = Localization.localOf(context);
+              Locale currentLocale = Localizations.localeOf(context);
 
               if (currentLocale.languageCode == "en") {
                 MyApp.setLocale(context, Locale("es", "ES"));

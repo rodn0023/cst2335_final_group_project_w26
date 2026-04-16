@@ -1,4 +1,3 @@
-//
 import 'package:floor/floor.dart';
 import 'Pet.dart';
 
@@ -6,19 +5,19 @@ import 'Pet.dart';
 @dao
 abstract class PetDAO {
 
-  /// Returns all [Pet] records from the database.
+  /// Returns all pets from the database.
   @Query('SELECT * FROM Pet')
   Future<List<Pet>> getAllPets();
 
-  /// Inserts a [Pet] into the database.
+  /// Inserts a new pet into the database.
   @insert
   Future<void> insertPet(Pet p);
 
-  /// Deletes a [Pet] from the database.
+  /// Deletes a pet from the database.
   @delete
   Future<void> deletePet(Pet p);
 
-  /// Updates an existing [Pet] in the database.
+  /// Updates an existing pet in the database.
   @update
   Future<void> updatePet(Pet p);
 }
